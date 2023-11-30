@@ -1,4 +1,5 @@
 var Minio = require('minio')
+var buckets = require('./buckets')
 
 /*
 export default function generateUniqueName() {
@@ -11,23 +12,6 @@ export default function generateUniqueName() {
 */
 
 var minioClient 
-
-const buckets = [
-    {
-        name : 'bucket1',
-        endpoint : 'play.min.io',
-        port : 9000,
-        accessKey : 'Q3AM3UQ867SPQQA43P2F',
-        secretKey : 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG'
-    },
-    {
-        name : 'bucket1',
-        endpoint : 'play.min.io',
-        port : 9000,
-        accessKey : 'Q3AM3UQ867SPQQA43P2F',
-        secretKey : 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG'   
-    }
-]
 
 const dayBeforeDelete = 5;
 
