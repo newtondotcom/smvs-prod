@@ -1,16 +1,6 @@
 var Minio = require('minio')
 var buckets = require('./buckets')
 
-/*
-export default function generateUniqueName() {
-    let date = new Date();
-    let timestamp = date.getTime();
-    let randomString = Math.random().toString(36).substring(2, 8); 
-    let uniqueName = `${timestamp}_${randomString}`;
-    return uniqueName;
-}
-*/
-
 var minioClient 
 
 const dayBeforeDelete = 5;
@@ -52,4 +42,4 @@ var cron = require('node-cron');
 cron.schedule('0 3 * * *', () => {
     console.log('Running a task every day at 3am');
     buckets.forEach((bucket) => cleanS3(bucket))
-  });
+});
