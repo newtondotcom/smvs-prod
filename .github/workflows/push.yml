@@ -17,13 +17,11 @@
             with:
               username: ${{ secrets.DOCKERHUB_USERNAME }}
               password: ${{ secrets.DOCKERHUB_TOKEN }}
-          - name: cd to worker
-            run: |
-              cd worker
           - name: Build and push AMD64
             uses: docker/build-push-action@v4
             with:
-              context: .
+              context: ./worker
+              file: ./worker/Dockerfile
               push: true
               tags: ${{ env.WORKER_TAG }}-amd64
               platforms: linux/amd64
@@ -41,13 +39,11 @@
             with:
               username: ${{ secrets.DOCKERHUB_USERNAME }}
               password: ${{ secrets.DOCKERHUB_TOKEN }}
-          - name: cd to worker
-            run: |
-              cd worker
           - name: Build and push ARM64
             uses: docker/build-push-action@v4
             with:
-              context: .
+              context: ./worker
+              file: ./worker/Dockerfile
               push: true
               tags: ${{ env.WORKER_TAG }}-arm64
               platforms: linux/arm64/v8
@@ -63,13 +59,11 @@
             with:
               username: ${{ secrets.DOCKERHUB_USERNAME }}
               password: ${{ secrets.DOCKERHUB_TOKEN }}
-          - name: cd to worker
-            run: |
-              cd cleans3
           - name: Build and push AMD64
             uses: docker/build-push-action@v4
             with:
-              context: .
+              context: ./cleans3
+              file: ./cleans3/Dockerfile
               push: true
               tags: ${{ env.CLEANS3_TAG }}-amd64
               platforms: linux/amd64
@@ -87,13 +81,11 @@
             with:
               username: ${{ secrets.DOCKERHUB_USERNAME }}
               password: ${{ secrets.DOCKERHUB_TOKEN }}
-          - name: cd to worker
-            run: |
-              cd cleans3
           - name: Build and push ARM64
             uses: docker/build-push-action@v4
-            with:
-              context: .
+            with:   
+              context: ./cleans3
+              file: ./cleans3/Dockerfile
               push: true
               tags: ${{ env.CLEANS3_TAG }}-arm64
               platforms: linux/arm64/v8
