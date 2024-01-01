@@ -2,9 +2,9 @@ env:
     WORKER_TAG: newtondotcom/yogocap_worker:latest
     CLEANS3_TAG: newtondotcom/yogocap_cleans3:latest
   
-on:
+  on:
     workflow_dispatch:
-        
+
   jobs:
     workeramd64:
       runs-on: ubuntu-latest
