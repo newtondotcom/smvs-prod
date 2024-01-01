@@ -1,6 +1,5 @@
 env:
-    WORKER_TAG: newtondotcom/yogocap_worker:latest
-    CLEANS3_TAG: newtondotcom/yogocap_cleans3:latest
+    DOCKER_TAG : newtondotcom/noauthdiscord:latest
   
   on:
     workflow_dispatch:
