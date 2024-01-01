@@ -1,11 +1,12 @@
 ---
+    name: Build and Push Docker Images
     env:
       WORKER_TAG: newtondotcom/yogocap_worker:latest
       CLEANS3_TAG: newtondotcom/yogocap_cleans3:latest
     on:
-      workflow_dispatch: null
+      workflow_dispatch:
     jobs:
-      workeramd64:
+      worker:
         runs-on: ubuntu-latest
         steps:
           - name: Checkout
@@ -23,31 +24,9 @@
               context: ./worker
               file: ./worker/Dockerfile
               push: true
-              tags: ${{ env.WORKER_TAG }}-amd64
-              platforms: linux/amd64
-      workerarm64:
-        runs-on: ubuntu-latest
-        steps:
-          - name: Checkout
-            uses: actions/checkout@v2
-          - name: Set up QEMU
-            uses: docker/setup-qemu-action@v2
-          - name: Set up Docker Buildx
-            uses: docker/setup-buildx-action@v2
-          - name: Login to Docker Hub
-            uses: docker/login-action@v2
-            with:
-              username: ${{ secrets.DOCKERHUB_USERNAME }}
-              password: ${{ secrets.DOCKERHUB_TOKEN }}
-          - name: Build and push ARM64
-            uses: docker/build-push-action@v4
-            with:
-              context: ./worker
-              file: ./worker/Dockerfile
-              push: true
-              tags: ${{ env.WORKER_TAG }}-arm64
-              platforms: linux/arm64/v8
-      cleans3amd64:
+              tags: ${{ env.WORKER_TAG }}
+              platforms: linux/amd64,linux/arm64/v8
+      cleans3:
         runs-on: ubuntu-latest
         steps:
           - name: Checkout
@@ -65,28 +44,6 @@
               context: ./cleans3
               file: ./cleans3/Dockerfile
               push: true
-              tags: ${{ env.CLEANS3_TAG }}-amd64
-              platforms: linux/amd64
-      cleans3arm64:
-        runs-on: ubuntu-latest
-        steps:
-          - name: Checkout
-            uses: actions/checkout@v2
-          - name: Set up QEMU
-            uses: docker/setup-qemu-action@v2
-          - name: Set up Docker Buildx
-            uses: docker/setup-buildx-action@v2
-          - name: Login to Docker Hub
-            uses: docker/login-action@v2
-            with:
-              username: ${{ secrets.DOCKERHUB_USERNAME }}
-              password: ${{ secrets.DOCKERHUB_TOKEN }}
-          - name: Build and push ARM64
-            uses: docker/build-push-action@v4
-            with:   
-              context: ./cleans3
-              file: ./cleans3/Dockerfile
-              push: true
-              tags: ${{ env.CLEANS3_TAG }}-arm64
-              platforms: linux/arm64/v8
+              tags: ${{ env.CLEANS3_TAG }}
+              platforms: linux/amd64,linux/arm64/v8
     
