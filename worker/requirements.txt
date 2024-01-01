@@ -1,2 +1,6 @@
 google-cloud-firestore
 pika
+minio
+ffmpeg-python
+opencv-python
+moviepy
