@@ -6,11 +6,11 @@ var minioClient
 const dayBeforeDelete = 5;
 
 async function cleanS3(bucket) {
-
+    console.log('Cleaning bucket: ' + bucket.name)
     minioClient = new Minio.Client({
         endPoint: bucket.endpoint,
         port: bucket.port,
-        useSSL: true,
+        useSSL: false,
         accessKey: bucket.accessKey,
         secretKey: bucket.secretKey,
     })
@@ -32,10 +32,13 @@ async function cleanS3(bucket) {
             })
         }
   } )
+    console.log('Done')
     } catch (err) {
         console.log(err)
     }
 }
+
+buckets.forEach((bucket) => cleanS3(bucket))
 
 var cron = require('node-cron');
 
