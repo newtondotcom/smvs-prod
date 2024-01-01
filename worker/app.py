@@ -24,7 +24,6 @@ print(' Waiting for messages...')
 #channel.basic_publish(exchange='', routing_key='task_queue', body='Hello World!')
 
 def callback(ch, method, properties, body):
-    print(" Received %s" % body.decode())
 
     ## Parameters
     file_bucket_name = "videos"
@@ -50,7 +49,10 @@ def callback(ch, method, properties, body):
     #remove minia
     #remove_file(file_bucket_name,file_name.replace(".mp4",".png"))
 
-    os.remove(file_name)
+    try:
+        os.remove(file_name)
+    except OSError:
+        pass
 
     #Advice server that file is ready
     ch.basic_ack(delivery_tag=method.delivery_tag)
