@@ -1,10 +1,10 @@
-FROM node:14.15.4-alpine3.12
+FROM node:lts-alpine
 
 WORKDIR /app
 
 COPY . /app
 
-RUN npm install
+RUN yarn
 
 ENTRYPOINT [ "node" ]
 
