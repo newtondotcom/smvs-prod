@@ -6,6 +6,7 @@ from silent import *
 from s3 import *
 from emojis import *
 from treat import *
+import json
 
 print(' Connecting to server ...')
 
@@ -21,15 +22,22 @@ channel.queue_declare(queue='task_queue', durable=True)
 
 print(' Waiting for messages...')
 
-#channel.basic_publish(exchange='', routing_key='task_queue', body='Hello World!')
-
 def callback(ch, method, properties, body):
+    bodyjson = json.loads(body)
 
     ## Parameters
-    file_bucket_name = "videos"
-    file_name = "test.mp4"
-    emoji = True
-    lsilence = True
+    file_bucket_name = bodyjson['file_bucket_name']
+    file_name = bodyjson['file_name']
+    emoji = bodyjson['emoji']
+    lsilence = bodyjson['silence']
+
+    #email = bodyjson['email']
+
+    ## Default parameters
+    #file_bucket_name = "videos"
+    #file_name = "test.mp4"
+    #emoji = True
+    #lsilence = True
 
     #Download file from S3
     local_file_path = "temp/"+file_name
