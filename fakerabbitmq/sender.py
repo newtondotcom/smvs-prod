@@ -39,3 +39,6 @@ body = '{"file_bucket_name":"videos","file_name":"test.mp4","emoji":true,"silenc
 channel.basic_publish(exchange='', routing_key='task_queue', body=body)
 
 print(" [x] Sent 'Hello World!'")
+
+channel.close()
+connection.close()
