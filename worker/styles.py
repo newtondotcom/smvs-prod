@@ -5,7 +5,7 @@ def gen_styles():
     styles = []
     count = 0
     for j in rotation:
-        style = "Style: s" + str(count) + ", Roboto, 20, &H00FFFFFF , &H00FF0000, &H00FFFFFF , &H00000000 , -1, 0, 0, 0,100,100, 0, " + j + ", 1, 3 , 4, 3, 0, 0, 50, 0, 2\n" #30, 30, 30
+        style = "Style: s" + str(count) + ", Roboto, 18, &H00FFFFFF , &H00FF0000, &H00FFFFFF , &H00000000 , -1, 0, 0, 0,100,100, 0, " + j + ", 1, 3 , 4, 3, 0, 0, 50, 0, 2\n" #30, 30, 30
         styles.append(style)
         count += 1
     return styles
