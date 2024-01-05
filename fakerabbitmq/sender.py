@@ -10,7 +10,7 @@ aws_secret_access_key = 'nyAeRaWm1vo9mBBwgKqhLzP1Yjws7V5IpVrfKPEe'
 print(' Connecting to server ...')
 
 try:
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="141.145.217.120",port=5672))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host="144.91.123.186",port=15672))
 except pika.exceptions.AMQPConnectionError as exc:
     print("Failed to connect to RabbitMQ service. Message wont be sent.")
     exit()
