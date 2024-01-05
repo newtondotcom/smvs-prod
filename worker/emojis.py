@@ -30,8 +30,7 @@ def overlay_images_on_video(in_path, out_path, width, height,ass,image_list=None
 
     else:
         cmd = f"ffmpeg -i {in_path} -vf 'ass={ass}' -c:a copy -y {out_path}"
-    print(cmd)
-    subprocess.run(cmd, shell=True)
+    subprocess.run(cmd, shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
 
