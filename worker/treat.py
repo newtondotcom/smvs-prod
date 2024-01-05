@@ -32,17 +32,6 @@ def write_ass(words):
             else :
                 tab.append([start,end,word,False])
 
-def gen_video(in_path,out_path,ass_path):
-    ffmpeg_cmd = [
-            "ffmpeg",
-            "-i", in_path,
-            "-vf", f"ass={ass_path}",
-            "-c:a", "copy",
-            "-y",
-            out_path
-    ]
-    subprocess.run(ffmpeg_cmd, check=False)
-
 def treat_tab():
     moyenne_time = 0
     moyenne_lenght = 0
