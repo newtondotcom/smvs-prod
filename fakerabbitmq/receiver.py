@@ -19,10 +19,6 @@ print(' Waiting for messages...')
 def callback(ch, method, properties, body):
     print(" [x] Received %r" % body)
     bodyjson = json.loads(body)
-    taskData = bodyjson['taskData']
-    silence = bodyjson['silence']
-    print(" [x] Silence %r" % silence)
-    print(" [x] Task Data %r" % taskData)
     time.sleep(2)
     ch.basic_ack(delivery_tag=method.delivery_tag)
     print(" [x] Done")
