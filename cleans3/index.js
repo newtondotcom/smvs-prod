@@ -1,48 +1,30 @@
-var Minio = require('minio')
-var buckets = require('./buckets')
-
-var minioClient 
-
-const dayBeforeDelete = 5;
-
-async function cleanS3(bucket) {
-    console.log('Cleaning bucket: ' + bucket.name)
-    minioClient = new Minio.Client({
-        endPoint: bucket.endpoint,
-        port: bucket.port,
-        useSSL: false,
-        accessKey: bucket.accessKey,
-        secretKey: bucket.secretKey,
-    })
-
-  try {
-    const list = await minioClient.listObjects(bucket.name, '', true)
-    const objects = list.map((obj) => obj.name)
-    objects.forEach((obj) => {
-        const date = obj.split('_')[0]
-        const objDate = new Date(date)
-        const today = new Date()
-        const diff = today - objDate
-        const days = diff / (1000 * 60 * 60 * 24)
-        if (days > dayBeforeDelete) {
-            minioClient.removeObject(bucketName, obj, function(err) {
-                if (err) {
-                    return console.log(err)
-                }
-            })
-        }
-  } )
-    console.log('Done')
-    } catch (err) {
-        console.log(err)
-    }
-}
-
-buckets.forEach((bucket) => cleanS3(bucket))
-
-var cron = require('node-cron');
+// CLEAN S3
+import { cleanS3 } from './cleans3.mjs'; // Update the file extension
+import cron from 'node-cron';
+import buckets from './buckets.mjs'; // Update the file extension
 
 cron.schedule('0 3 * * *', () => {
-    console.log('Running a task every day at 3am');
-    buckets.forEach((bucket) => cleanS3(bucket))
+  console.log('Running a task every day at 3am');
+  buckets.forEach((bucket) => cleanS3(bucket));
 });
+
+// REDIRECT AMPQ
+import express from 'express';
+import bodyParser from 'body-parser';
+import * as ampq from './ampq.mjs'; // Update the file extension
+import cors from 'cors';
+const app = express();
+
+app.use(bodyParser.json());
+app.use(cors());
+
+app.listen(3000, () =>
+  console.log('Example app listening on port 3000!')
+);
+
+app.post('/', (req, res) => {
+    let body = req.body;
+    console.log('Received body:', body);
+    ampq.sendTask(body);
+    res.status(200).send('Task sent to AMPQ');
+  });
