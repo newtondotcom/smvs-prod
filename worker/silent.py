@@ -46,10 +46,13 @@ def find_speaking(audio_clip, window_size=0.1, volume_threshold=0.01, ease_in=0.
     return speaking_intervals
 
 
-def silence(file_in="output/mbfASS.mp4", file_out="output/test_silent.mp4"):
+def rm_silent_parts(file_in="output/mbfASS.mp4", file_out="output/test_silent.mp4"):
 
     vid = VideoFileClip(file_in)
-    intervals_to_keep = find_speaking(vid.audio,0.1,0.01,0.25)
+    window_size=0.1
+    volume_threshold=0.01
+    ease_in=0.25
+    intervals_to_keep = find_speaking(vid.audio,window_size,volume_threshold,ease_in)
 
     if intervals_to_keep==[]:
         print("No intervals to keep, exiting")
