@@ -2,13 +2,12 @@ import subprocess
 from utils import *
 
 path_emojis = "emojis/images/"
-image_list = [("1", 1.523, 5.518), ("2", 10.5, 15.5), ("3", 20.5, 25.5)]
 
+#define this two values depending on video heigh and width 
 emoji_size = 72
-
 y_offset = 10
 
-def overlay_images_on_video(in_path, out_path, width, height,ass,image_list=None):
+def overlay_images_on_video(in_path, out_path, width, height,ass,emojis_list=None):
     swidth = (width-emoji_size)/2
     sheight = (height-emoji_size)/2 - y_offset
     filter_complex = ""
