@@ -32,7 +32,7 @@ def write_ass(words):
             else :
                 tab.append([start,end,word,False])
 
-def treat_tab():
+def analyse_tab_durations():
     moyenne_time = 0
     moyenne_lenght = 0
     for j in tab:
@@ -52,7 +52,7 @@ def treat_tab():
         else :
             retenue = juxtaposer_mots(tab, new_tab, seuil, j, moyenne_time, moyenne_lenght)
 
-def write_new_ass(file : TextIO):
+def write_ass_file(file : TextIO):
     file.write("[Script Info]\n")
     file.write("ScriptType: v4.00\n")
     file.write("Collisions: Normal\n")
@@ -113,7 +113,7 @@ def write_new_ass(file : TextIO):
 
         file.write(f"""Dialogue: 0,{time_to_hhmmss(globalstart)},{time_to_hhmmss(globalend)},{style},,50,50,20,fx,{localtext}"""+  "\n")
 
-def trat_video(path_in,path_out,emoji,lsilence):
+def process_video(path_in,path_out,emoji,lsilence):
     width = 0
     heigh = 0  
     ass_path = "temp/"
@@ -126,20 +126,20 @@ def trat_video(path_in,path_out,emoji,lsilence):
 
     write_ass(words=words)
 
-    treat_tab() 
+    analyse_tab_durations() 
         
     with open(ass_path,"w", encoding="utf-8") as ass:
-        write_new_ass(file=ass)
+        write_ass_file(file=ass)
 
-    image_list = [("1", 1.523, 5.518), ("2", 10.5, 15.5), ("3", 20.5, 25.5)]
+    emojis_list = [("1", 1.523, 5.518), ("2", 10.5, 15.5), ("3", 20.5, 25.5)]
 
     if emoji:
-        overlay_images_on_video(in_path=path_in,out_path=path_out,image_list=image_list,width=width,height=heigh,ass=ass_path)
+        overlay_images_on_video(in_path=path_in,out_path=path_out,emojis_list=emojis_list,width=width,height=heigh,ass=ass_path)
     else:
-        overlay_images_on_video(in_path=path_in,out_path=path_out,image_list=None,width=width,height=heigh,ass=ass_path)
+        overlay_images_on_video(in_path=path_in,out_path=path_out,emojis_list=None,width=width,height=heigh,ass=ass_path)
 
     if lsilence:
-        silence(path_out,path_out)
+        rm_silent_parts(path_out,path_out)
         
     return path_out
         
