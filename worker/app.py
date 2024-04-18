@@ -49,7 +49,7 @@ def callback(ch, method, properties, body):
     path_in = local_file_path
     path_out = local_file_path.replace(".mp4","_out.mp4")
 
-    trat_video(path_in,path_out,emoji,lsilence)
+    process_video(path_in,path_out,emoji,lsilence)
 
     print("File processed: "+path_out)
 
@@ -63,18 +63,19 @@ def callback(ch, method, properties, body):
 
     print("File removed: "+file_name)
 
-    #remove minia
-    #remove_file(file_bucket_name,file_name.replace(".mp4",".png"))
+    #add minia with very low resolution
+    # CREATE THE MINIA WITH VERY LOW RESOLUTION
+    upload_file("minia",file_name.replace(".mp4",".png"))
 
     try:
         os.remove(file_name)
     except OSError:
         pass
 
+    clean_temp()
+
     #Advice server that file is ready
     ch.basic_ack(delivery_tag=method.delivery_tag)
-
-    clean_temp()
     
     print(" Done")
 
