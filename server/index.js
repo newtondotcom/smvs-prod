@@ -11,7 +11,6 @@ cron.schedule('0 3 * * *', () => {
 // REDIRECT AMPQ
 import express from 'express';
 import bodyParser from 'body-parser';
-import * as ampq from './ampq.mjs'; // Update the file extension
 import cors from 'cors';
 const app = express();
 
@@ -21,10 +20,3 @@ app.use(cors());
 app.listen(3000, () =>
   console.log('Example app listening on port 3000!')
 );
-
-app.post('/', (req, res) => {
-    let body = req.body;
-    console.log('Received body:', body);
-    ampq.sendTask(body);
-    res.status(200).send('Task sent to AMPQ');
-  });
