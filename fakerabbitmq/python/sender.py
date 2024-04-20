@@ -2,15 +2,19 @@ import pika
 from minio import Minio
 import os
 from minio.error import S3Error
+from dotenv import load_dotenv
+load_dotenv("../../.env")
 
 # Replace these with your AWS credentials and S3 bucket and file information
-aws_access_key_id = 'oJTJnZIz0lJ8RblZMLbb'
-aws_secret_access_key = 'nyAeRaWm1vo9mBBwgKqhLzP1Yjws7V5IpVrfKPEe'
+S3_ACCESS_KEY = os.environ.get("S3_KEY_ID")
+S3_SECRET_KEY = os.environ.get("S3_SECRET_KEY")
+S3_HOST = os.environ.get("S3_HOST")
+S3_SECURE = os.environ.get("S3_SECURE")
 
-print(' Connecting to server ...')
-
+RABBIT_HOST = os.environ.get("RABBIT_HOST")
+RABBIT_PORT = os.environ.get("RABBIT_PORT")
 try:
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="144.91.123.186",port=15672))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBIT_HOST,port=RABBIT_PORT))
 except pika.exceptions.AMQPConnectionError as exc:
     print("Failed to connect to RabbitMQ service. Message wont be sent.")
     exit()
@@ -20,10 +24,10 @@ channel = connection.channel()
 def upload_file(file_key, file_s3_name,bucket_name):
     try:
         os.chdir("temp/")
-        client = Minio("144.91.123.186:32771",
-                access_key=aws_access_key_id,
-                secret_key=aws_secret_access_key,
-                secure=False
+        client = Minio(S3_HOST,
+                access_key=S3_ACCESS_KEY,
+                secret_key=S3_SECRET_KEY,
+                secure=S3_SECURE
         )
         client.fput_object(
                 bucket_name, file_key, file_s3_name,
