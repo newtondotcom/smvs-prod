@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platform: [${{ secrets.TARGET_PLATFORM }}]
+        platform: [linux/arm64]
 
     steps:
       - name: Checkout
