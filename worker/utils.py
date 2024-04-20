@@ -122,3 +122,32 @@ def group_words_based_on_threshold(tab, new_tab, proximity_threshold, index, ave
     # Append the final group to the new_tab list
     new_tab.append(group)
     return retenue
+
+
+def generate_thumbnail(path_in, thumbnail_path):
+    """Generates a thumbnail from the input video at 1 second."""
+    try:
+        # Open the input video file and extract thumbnail
+        probe = ffmpeg.probe(path_in)
+        video_stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
+
+        if not video_stream:
+            raise ValueError("Input file is not a valid video file.")
+
+        # Use ffmpeg to extract thumbnail with specified dimensions and parameters
+        (
+            ffmpeg
+            .input(path_in, ss=1)
+            .output(
+                thumbnail_path,
+                vframes=1,
+                vf='scale=200:100:force_original_aspect_ratio=decrease,pad=200:100:(ow-iw)/2:(oh-ih)/2,crop=200:100'
+            )
+            .run(overwrite_output=True, quiet=True)  # Suppress output to console
+        )
+
+        print(f"Thumbnail generated successfully: {thumbnail_path}")
+    except ffmpeg.Error as e:
+        print(f"Error generating thumbnail: {e.stderr}")
+    except Exception as e:
+        print(f"Error: {e}")

@@ -23,7 +23,7 @@ def main():
     path_in = local_file_path
     path_out = local_file_path.replace(".mp4","_out.mp4")
 
-    video_aligned = True
+    video_aligned = False
 
     process_video(path_in,path_out,emoji,lsilence,video_aligned)
 
