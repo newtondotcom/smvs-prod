@@ -22,7 +22,7 @@ new_tab = []   # Stores grouped and formatted subtitle segments
 words = []     # Placeholder for extracted transcriptions
 styles = gen_styles()  # List of predefined subtitle styles
 
-def write_ass(words):
+def populate_tabs(words):
     """Extracts words and timings from transcriptions and populates 'tab'."""
     for s in words:
         for i in range(len(s['words'])):
@@ -58,7 +58,7 @@ def analyse_tab_durations():
         else:
             retenue = group_words_based_on_threshold(tab, new_tab, seuil, j, moyenne_time, moyenne_length)
 
-def write_ass_file(file: TextIO):
+def write_ass_file_aligned(file: TextIO):
     """Writes formatted subtitles to an ASS file."""
     file.write("[Script Info]\n")
     file.write("ScriptType: v4.00\n")
@@ -126,33 +126,27 @@ def write_ass_file(file: TextIO):
         # Write formatted subtitle event to the ASS file
         file.write(f"Dialogue: 0,{format_seconds_to_hhmmss(globalstart)},{format_seconds_to_hhmmss(globalend)},{style},,50,50,20,fx,{localtext}\n")
 
-def generate_thumbnail(path_in, thumbnail_path):
-    """Generates a thumbnail from the input video at 1 second."""
-    try:
-        # Open the input video file and extract thumbnail
-        probe = ffmpeg.probe(path_in)
-        video_stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
+def write_ass_file_non_aligned(contents,file: TextIO):
+    """Writes formatted subtitles to an ASS file."""
+    file.write("[Script Info]\n")
+    file.write("ScriptType: v4.00\n")
+    file.write("Collisions: Normal\n")
+    file.write("PlayDepth: 0\n")
+    file.write("\n")
+    file.write("[V4+ Styles]\n")
+    file.write("Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColor, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding, WrapStyle\n")
+    # file.write 
+    file.write("\n")
+    file.write("[Events]\n")
+    file.write("Format: Layer, Start, End, Style, Actor, MarginL, MarginR, MarginV, Effect, Text\n")
+    
+    i_color = 0
+    for s in contents:            
+        #f"{format_timestamp(segment['start'], always_include_hours=True)} --> "
+        #f"{format_timestamp(segment['end'], always_include_hours=True)}\n"
+        #f"{segment['text'].strip().replace('-->', '->')}\n",
 
-        if not video_stream:
-            raise ValueError("Input file is not a valid video file.")
-
-        # Use ffmpeg to extract thumbnail with specified dimensions and parameters
-        (
-            ffmpeg
-            .input(path_in, ss=1)
-            .output(
-                thumbnail_path,
-                vframes=1,
-                vf='scale=200:100:force_original_aspect_ratio=decrease,pad=200:100:(ow-iw)/2:(oh-ih)/2,crop=200:100'
-            )
-            .run(overwrite_output=True, quiet=True)  # Suppress output to console
-        )
-
-        print(f"Thumbnail generated successfully: {thumbnail_path}")
-    except ffmpeg.Error as e:
-        print(f"Error generating thumbnail: {e.stderr}")
-    except Exception as e:
-        print(f"Error: {e}")
+        file.write(f"Dialogue: 0,{format_seconds_to_hhmmss(s['start'])},{format_seconds_to_hhmmss(s['end'])},,,50,50,20,fx,{s['text'].strip().replace('-->', '->')}\n")
 
 def process_video(path_in, path_out, emoji, lsilence, isVideoAligned):
     """Processes a video based on specified parameters."""
@@ -171,55 +165,39 @@ def process_video(path_in, path_out, emoji, lsilence, isVideoAligned):
     else:
         video_non_aligned(words, ass_path, emoji, path_in, path_out)  # Process non-aligned video
 
-def write_srt(transcript: Iterator[dict], file: TextIO):
-    """Writes a transcript to an SRT file."""
-    for i, segment in enumerate(transcript, start=1):
-        # Format and write each transcript segment to the SRT file
-        print(
-            f"{i}\n"
-            f"{format_timestamp(segment['start'], always_include_hours=True)} --> "
-            f"{format_timestamp(segment['end'], always_include_hours=True)}\n"
-            f"{segment['text'].strip().replace('-->', '->')}\n",
-            file=file,
-            flush=True,
-        )
-
 def video_non_aligned(words, ass_path, emoji, path_in, path_out):
     """Processes a non-aligned video with generated subtitles."""
-    srt_path = ass_path.replace(".ass", ".srt")  # Define SRT file path from ASS file
 
-    with open(srt_path, "w", encoding="utf-8") as srt:
-        write_srt(words, file=srt)  # Write transcript to SRT file
+    # Write the ass file with content from faster-whipser transcription
+    with open(ass_path, "w", encoding="utf-8") as srt:
+        write_ass_file_non_aligned(words, file=srt)  # Write transcript to SRT file
 
-    video = ffmpeg.input(path_in)  # Open input video
-    audio = video.audio  # Extract audio from video
+    # Get the dimensions (width and height) of the input video
+    width, height = get_video_dimensions(video_path=path_in)
 
-    # Concatenate video with subtitles using ffmpeg and output the processed video
-    ffmpeg.concat(
-        video.filter('subtitles', srt_path, force_style="OutlineColour=&H40000000,BorderStyle=3"),
-        audio,
-        v=1, a=1
-    ).output(path_out).run(quiet=True, overwrite_output=True)  # Suppress output and overwrite output file
-
-    # Optionally remove silent parts from the processed video
-    if lsilence:
-        rm_silent_parts(path_out, path_out)
-
-    return path_out  # Return processed video path
+    # simply overlay the ASS script on the video
+    overlay_images_on_video(
+        in_path=path_in,
+        out_path=path_out,
+        emojis_list=None,
+        width=width,
+        height=height,
+        ass=ass_path
+    )
 
 def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence):
     # Get the dimensions (width and height) of the input video
     width, height = get_video_dimensions(video_path=path_in)
 
     # Generate ASS script file based on the provided words
-    write_ass(words=words)
+    populate_tabs(words=words)
 
     # Analyze and process the durations and grouping of words
     analyse_tab_durations() 
         
     # Write the ASS script to a file at the specified path
     with open(ass_path, "w", encoding="utf-8") as ass:
-        write_ass_file(file=ass)
+        write_ass_file_aligned(file=ass)
 
     # Define a list of emojis with their start and end times
     emojis_list = [("1", 1.523, 5.518), ("2", 10.5, 15.5), ("3", 20.5, 25.5)]
