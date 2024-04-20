@@ -22,6 +22,7 @@ docker buildx create --use
 docker buildx build \
     --platform "$TARGET_PLATFORM" \
     -t "$IMAGE_WORKER_NAME:$IMAGE_WORKER_TAG" \
+    --secret id=.env,src=.env
     worker/
 
 # Tag the Docker image
