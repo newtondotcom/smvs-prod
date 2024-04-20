@@ -1,20 +1,22 @@
 from minio import Minio
 import os
 from minio.error import S3Error
+from dotenv import load_dotenv
+load_dotenv()
 
 # Replace these with your AWS credentials and S3 bucket and file information
-aws_access_key_id = 'oJTJnZIz0lJ8RblZMLbb'
-aws_secret_access_key = 'nyAeRaWm1vo9mBBwgKqhLzP1Yjws7V5IpVrfKPEe'
-host = "144.91.123.186:32771"
-secure = False
+S3_ACCESS_KEY = os.environ.get("S3_KEY_ID")
+S3_SECRET_KEY = os.environ.get("S3_SECRET_KEY")
+S3_HOST = os.environ.get("S3_HOST")
+S3_SECURE = os.environ.get("S3_SECURE")
 
 class S3:
     def __init__(self, bucket_name):
         self.bucket_name = bucket_name
-        self.access_key = aws_access_key_id
-        self.secret_key = aws_secret_access_key
-        self.host = host
-        self.secure = secure
+        self.access_key = S3_ACCESS_KEY
+        self.secret_key = S3_SECRET_KEY
+        self.host = S3_HOST
+        self.secure = S3_SECURE
         
         # Initialize Minio client
         self.client = Minio(
