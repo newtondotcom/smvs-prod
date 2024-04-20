@@ -17,7 +17,7 @@ def main():
     lsilence = False
 
     #Download file from S3
-    local_file_path = "../fakerabbitmq/python/temp/palma.mp4"
+    local_file_path = "../inputs/palma.mp4"
 
     #Process file
     path_in = local_file_path
