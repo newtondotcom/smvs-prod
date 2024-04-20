@@ -2,3 +2,5 @@
 worker/.env
 server/.env
 .env
+inputs/*_out.mp4
+inputs/*.jpg
