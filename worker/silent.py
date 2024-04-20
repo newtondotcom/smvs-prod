@@ -1,6 +1,5 @@
 import math
 import sys
-import subprocess
 import os
 import shutil
 from moviepy.editor import AudioClip, VideoFileClip, concatenate_videoclips
@@ -12,7 +11,7 @@ from moviepy.editor import AudioClip, VideoFileClip, concatenate_videoclips
 #  window_size: (in seconds) hunt for silence in windows of this size
 #  volume_threshold: volume below this threshold is considered to be silence
 #  ease_in: (in seconds) add this much silence around speaking intervals
-def find_speaking(audio_clip, window_size=0.1, volume_threshold=0.01, ease_in=0.25):
+def find_speaking_clips(audio_clip, window_size=0.1, volume_threshold=0.01, ease_in=0.25):
     # First, iterate over audio to find all silent windows.
     num_windows = math.floor(audio_clip.end/window_size)
     window_is_silent = []
@@ -52,7 +51,7 @@ def rm_silent_parts(file_in="output/mbfASS.mp4", file_out="output/test_silent.mp
     window_size=0.1
     volume_threshold=0.01
     ease_in=0.25
-    intervals_to_keep = find_speaking(vid.audio,window_size,volume_threshold,ease_in)
+    intervals_to_keep = find_speaking_clips(vid.audio,window_size,volume_threshold,ease_in)
 
     if intervals_to_keep==[]:
         print("No intervals to keep, exiting")
