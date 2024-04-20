@@ -1,4 +1,6 @@
 const amqp = require('amqplib');
+import dotenv from 'dotenv';
+dotenv.config("../../.env");
 
 const rabbitMQUrl = 'amqp://144.91.123.186:15672';
 const exchange = 'tasks';
