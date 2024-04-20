@@ -1,7 +1,7 @@
 // CLEAN S3
 import { cleanS3 } from './cleans3.mjs'; // Update the file extension
 import cron from 'node-cron';
-import buckets from './buckets.mjs'; // Update the file extension
+import buckets from './buckets.mjs'; 
 
 cron.schedule('0 3 * * *', () => {
   console.log('Running a task every day at 3am');
