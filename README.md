@@ -19,3 +19,7 @@ This folder contains two servers (one in (Python)[https://github.com/python/cpyt
 ## Inputs
 
 This folder contains test videos for the worker and for the two servers.
+
+> License :
+
+This software is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0). For details, see (LICENSE)[LICENSE]
