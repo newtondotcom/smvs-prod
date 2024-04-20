@@ -19,6 +19,10 @@ except pika.exceptions.AMQPConnectionError as exc:
 channel = connection.channel()
 channel.queue_declare(queue='task_queue', durable=True)
 
+videos_bucket_name = "videos"
+thumbnails_bucket_name = "thumbnails"
+s3_videos = S3(videos_bucket_name)
+s3_minia = S3(thumbnails_bucket_name)
 
 print(' Waiting for messages...')
 
@@ -26,12 +30,12 @@ def callback(ch, method, properties, body):
     bodyjson = json.loads(body)
 
     ## Parameters
-    file_bucket_name = bodyjson['file_bucket_name']
+    #file_bucket_name = bodyjson['file_bucket_name']
     file_name = bodyjson['file_name']
     emoji = bodyjson['emoji']
     lsilence = bodyjson['silence']
-
-    #email = bodyjson['email']
+    video_aligned = bodyjson['video_aligned']
+    key_db = bodyjson['key_db']
 
     ## Default parameters
     #file_bucket_name = "videos"
@@ -41,7 +45,7 @@ def callback(ch, method, properties, body):
 
     #Download file from S3
     local_file_path = "temp/"+file_name
-    download_file(file_name, local_file_path,file_bucket_name)
+    s3_videos.download_file(file_name, local_file_path)
 
     print("File downloaded: "+local_file_path)
 
@@ -49,23 +53,24 @@ def callback(ch, method, properties, body):
     path_in = local_file_path
     path_out = local_file_path.replace(".mp4","_out.mp4")
 
-    process_video(path_in,path_out,emoji,lsilence)
+    process_video(path_in,path_out,emoji,lsilence,video_aligned)
 
     print("File processed: "+path_out)
 
     #Upload file to S3
     file_key = path_out
-    upload_file(file_key.replace("temp/",""), file_key.replace("temp/",""),file_bucket_name)
+    s3.upload_file(file_key.replace("temp/",""), file_key.replace("temp/",""))
 
     print("File uploaded: "+file_key)
 
-    remove_file(file_bucket_name,file_name)
+    s3.remove_file(file_name)
 
     print("File removed: "+file_name)
 
-    #add minia with very low resolution
-    # CREATE THE MINIA WITH VERY LOW RESOLUTION
-    upload_file("minia",file_name.replace(".mp4",".png"))
+    #add minia with very low resolution    
+    thumbnail_path = local_file_path.replace(".mp4", "_thumbnail.jpg")
+    generate_thumbnail(path_in,thumbnail_path)
+    s3_minia.upload_file("minia",thumbnail_path)
 
     try:
         os.remove(file_name)
