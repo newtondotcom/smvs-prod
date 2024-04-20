@@ -20,13 +20,13 @@ def get_transcribe(audio_file, align=False):
     tac = time.perf_counter()
     print("Audio splitting took ",tac-tic," seconds")
 
-    #tic= time.perf_counter()
-    #result = model.transcribe(audio, batch_size=batch_size)
-    #toc = time.perf_counter()
-    #print("Transcription took ", toc - tic, " seconds")
+    tic= time.perf_counter()
+    result = model.transcribe(audio, batch_size=batch_size)
+    toc = time.perf_counter()
+    print("Transcription took ", toc - tic, " seconds")
 
-    #if align:
-        #return result['segments']
+    if align:
+        return result['segments']
 
     # 2. Align whisper output
     model_a, metadata = whisperx.load_align_model(language_code="fr", device=device)
