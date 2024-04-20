@@ -8,6 +8,7 @@ from utils import *
 from silent import *
 from emojis import *
 from gen import *
+import ffmpeg
 
 # http://www.looksoftware.com/help/v11/Content/Reference/Language_Reference/Constants/Color_constants.htm
 # rouge, jaune, vert
@@ -45,7 +46,8 @@ def analyse_tab_durations():
     moyenne_time = moyenne_time/len(tab)
     
     retenue = 0
-    seuil = 0.05
+    seuil = 0.10
+    # contenir 1 point ?? fin de phrase
     for j in range(len(tab)):
         if retenue > 0:
             retenue -= 1
@@ -113,7 +115,12 @@ def write_ass_file(file : TextIO):
 
         file.write(f"""Dialogue: 0,{time_to_hhmmss(globalstart)},{time_to_hhmmss(globalend)},{style},,50,50,20,fx,{localtext}"""+  "\n")
 
-def process_video(path_in,path_out,emoji,lsilence):
+    
+def generate_thumbnail(path_in,thumbnail_path):
+    thumbnail_command = f"""ffmpeg -i {path_in} -ss 00:00:01 -vframes 1 -vf "scale=200:100:force_original_aspect_ratio=decrease,pad=200:100:(ow-iw)/2:(oh-ih)/2,crop=200:100" {thumbnail_path}"""
+    os.system(thumbnail_command)
+
+def process_video(path_in,path_out,emoji,lsilence,video_aligned):
     width = 0
     heigh = 0  
     ass_path = "temp/"
@@ -124,6 +131,28 @@ def process_video(path_in,path_out,emoji,lsilence):
 
     words = get_transcribe(audio_path)
 
+    if video_aligned :
+        video_aligned(words,ass_path, emoji,path_in,path_out)
+    else :
+        video_non_aligned(words,ass_path, emoji,path_in,path_out)
+
+def format_timestamp(seconds: float, always_include_hours: bool = False):
+    assert seconds >= 0, "non-negative timestamp expected"
+    milliseconds = round(seconds * 1000.0)
+
+    hours = milliseconds // 3_600_000
+    milliseconds -= hours * 3_600_000
+
+    minutes = milliseconds // 60_000
+    milliseconds -= minutes * 60_000
+
+    seconds = milliseconds // 1_000
+    milliseconds -= seconds * 1_000
+
+    hours_marker = f"{hours:02d}:" if always_include_hours or hours > 0 else ""
+    return f"{hours_marker}{minutes:02d}:{seconds:02d},{milliseconds:03d}"
+
+def video_aligned(words,ass_path,emoji,path_in,path_out):
     write_ass(words=words)
 
     analyse_tab_durations() 
@@ -142,4 +171,25 @@ def process_video(path_in,path_out,emoji,lsilence):
         rm_silent_parts(path_out,path_out)
         
     return path_out
+
+def write_srt(transcript: Iterator[dict], file: TextIO):
+    for i, segment in enumerate(transcript, start=1):
+        print(
+            f"{i}\n"
+            f"{format_timestamp(segment['start'], always_include_hours=True)} --> "
+            f"{format_timestamp(segment['end'], always_include_hours=True)}\n"
+            f"{segment['text'].strip().replace('-->', '->')}\n",
+            file=file,
+            flush=True,
+        )
         
+def video_non_aligned(words,ass_path,emoji,path_in,path_out):
+    srt_path = ass_path.replace(".ass",".srt")
+    with open(srt_path, "w", encoding="utf-8") as srt:
+        write_srt(words, file=srt)
+    video = ffmpeg.input(path_in)
+    audio = video.audio
+
+    ffmpeg.concat(
+        video.filter('subtitles', srt_path, force_style="OutlineColour=&H40000000,BorderStyle=3"), audio, v=1, a=1
+    ).output(path_out).run(quiet=True, overwrite_output=True)
