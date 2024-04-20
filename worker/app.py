@@ -7,11 +7,15 @@ from s3 import *
 from emojis import *
 from processing import *
 import json
+from dotenv import load_dotenv
+load_dotenv()
 
 print(' Connecting to server ...')
 
+RABBIT_HOST = os.environ.get("RABBIT_HOST")
+RABBIT_PORT = os.environ.get("RABBIT_PORT")
 try:
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="144.91.123.186",port=15672))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBIT_HOST,port=RABBIT_PORT))
 except pika.exceptions.AMQPConnectionError as exc:
     print("Failed to connect to RabbitMQ service. Message wont be sent.")
     exit()
@@ -77,7 +81,7 @@ def callback(ch, method, properties, body):
     except OSError:
         pass
 
-    clean_temp()
+    clean_temporary_directory()
 
     #Advice server that file is ready
     ch.basic_ack(delivery_tag=method.delivery_tag)
