@@ -2,7 +2,6 @@ import random
 import os
 import re
 from typing import Iterator, TextIO
-import subprocess
 from styles import *
 from utils import *
 from silent import *
@@ -12,49 +11,55 @@ import ffmpeg
 
 # http://www.looksoftware.com/help/v11/Content/Reference/Language_Reference/Constants/Color_constants.htm
 # rouge, jaune, vert
-colors = ["\\2c&&H000000FF&","\\2c&H0000FFFF&","\\2c&H0000FF00&"]
-colors2 = ["\\1c&H0000FF&","\\1c&H00FFFF&","\\1c&H00FF00&"]
-tab = []
-new_tab = []
-styles = gen_styles()
-words = []
 
+# Constants for subtitle colors
+colors = ["\\2c&&H000000FF&", "\\2c&H0000FFFF&", "\\2c&H0000FF00&"]
+colors2 = ["\\1c&H0000FF&", "\\1c&H00FFFF&", "\\1c&H00FF00&"]
+
+# Global variables (consider avoiding global variables if possible)
+tab = []       # Stores extracted words and timings
+new_tab = []   # Stores grouped and formatted subtitle segments
+words = []     # Placeholder for extracted transcriptions
+styles = gen_styles()  # List of predefined subtitle styles
 
 def write_ass(words):
+    """Extracts words and timings from transcriptions and populates 'tab'."""
     for s in words:
         for i in range(len(s['words'])):
             word = s['words'][i]['word']
-            if len(s['words'][i])==1:
+            if len(s['words'][i]) == 1:
                 break
             start = s['words'][i]['start']
             end = s['words'][i]['end']
-            if i == len(s['words']) - 1 :
-                tab.append([start,end,word,True])
-            else :
-                tab.append([start,end,word,False])
+            if i == len(s['words']) - 1:
+                tab.append([start, end, word, True])  # Last word in a sentence
+            else:
+                tab.append([start, end, word, False])  # Intermediate word
 
 def analyse_tab_durations():
+    """Calculates average time and length of words in 'tab' for grouping."""
     moyenne_time = 0
-    moyenne_lenght = 0
+    moyenne_length = 0
     for j in tab:
         start = j[0]
         end = j[1]
-        word= j[2]
-        moyenne_time += (end-start)
-        moyenne_lenght += len(word)
-    moyenne_lenght = moyenne_lenght/len(tab)
-    moyenne_time = moyenne_time/len(tab)
+        word = j[2]
+        moyenne_time += (end - start)
+        moyenne_length += len(word)
+    moyenne_length = moyenne_length / len(tab)
+    moyenne_time = moyenne_time / len(tab)
     
     retenue = 0
-    seuil = 0.10
-    # contenir 1 point ?? fin de phrase
+    seuil = 0.10  # Proximity threshold for grouping words
+    # Contain words within a group based on specified criteria
     for j in range(len(tab)):
         if retenue > 0:
             retenue -= 1
-        else :
-            retenue = juxtaposer_mots(tab, new_tab, seuil, j, moyenne_time, moyenne_lenght)
+        else:
+            retenue = group_words_based_on_threshold(tab, new_tab, seuil, j, moyenne_time, moyenne_length)
 
-def write_ass_file(file : TextIO):
+def write_ass_file(file: TextIO):
+    """Writes formatted subtitles to an ASS file."""
     file.write("[Script Info]\n")
     file.write("ScriptType: v4.00\n")
     file.write("Collisions: Normal\n")
@@ -70,110 +75,106 @@ def write_ass_file(file : TextIO):
     
     i_color = 0
     for s in new_tab:
-        localtext =  ""
+        localtext = ""
         globalstart = s[0][0]
         globalend = s[-1][1]
         color = colors[i_color]
-        i_color = (i_color+1)%len(colors)
+        i_color = (i_color + 1) % len(colors)
         
-        boiler = "{\\k40\\fad(0,0)\\be1\\b\\bord2\\shad1\\1c&&HFFFFFF&\\3c&H000000&\\q1\\an5\\b700"+color+"} "
+        # Generate boilerplate style and text for each subtitle segment
+        boiler = "{\\k40\\fad(0,0)\\be1\\b\\bord2\\shad1\\1c&&HFFFFFF&\\3c&H000000&\\q1\\an5\\b700" + color + "} "
         localtext = boiler
-        if len(s)==4:
-            boiler = "{\\fad(0,0)\\be1\\b\\bord2\\shad1\\1c&&HFFFFFF&\\3c&H000000&\\q1\\an5\\b700"+color+"} "
+        
+        if len(s) == 4:
+            # Format specific segments within a group
+            boiler = "{\\fad(0,0)\\be1\\b\\bord2\\shad1\\1c&&HFFFFFF&\\3c&H000000&\\q1\\an5\\b700" + color + "} "
             localtext = boiler
+            
             first_start = s[0][0]
             first_end = s[1][1]
             second_start = s[2][0]
             second_end = s[3][1]
-            diff = abs(round(float(first_end-first_start)*100))
-            #duration = "{\\1c&HFFFFFF&\\t("+str(0)+","+str(diff)+","+colors2[i_color]+")}"
-            duration = "{"+colors[i_color]+"\\k"+str(diff)+"}"
-            localtext += duration+s[0][2].upper()+" "+s[1][2].upper()+"\\N "
-            i_color = (i_color+1)%len(colors)
-            color=colors[i_color]
-            diff2 = abs(round(float(second_end-second_start)*100))
-            diff3 = abs(round(float(second_start-first_start)*100))
-            diff4 = abs(round(float(second_end-first_start)*100))
-            duration2 = "{"+colors[i_color]+"\\k"+str(diff2)+"\\t("+str(diff3)+","+str(diff4)+",\\fscx110)"+"\\t("+str(diff3)+","+str(diff4)+",\\fscy110)}"
-            localtext += duration2+s[2][2].upper()+" "+s[3][2].upper()
-        else :
+            
+            diff = abs(round(float(first_end - first_start) * 100))
+            duration = "{" + colors[i_color] + "\\k" + str(diff) + "}"
+            localtext += duration + s[0][2].upper() + " " + s[1][2].upper() + "\\N "
+            
+            i_color = (i_color + 1) % len(colors)
+            color = colors[i_color]
+            diff2 = abs(round(float(second_end - second_start) * 100))
+            diff3 = abs(round(float(second_start - first_start) * 100))
+            diff4 = abs(round(float(second_end - first_start) * 100))
+            duration2 = "{" + colors[i_color] + "\\k" + str(diff2) + "\\t(" + str(diff3) + "," + str(diff4) + ",\\fscx110)" + "\\t(" + str(diff3) + "," + str(diff4) + ",\\fscy110)}"
+            localtext += duration2 + s[2][2].upper() + " " + s[3][2].upper()
+        else:
+            # Format individual words within a segment
             for segment in s:
                 word = segment[2]
                 start = segment[0]
                 end = segment[1]
                 delta = end - start
-                duration = "{\\k"+str(abs(round(delta*100)))+"}"
-                #boiler = " {\\be0\\b1\\move(100, 100, 200, 200,["+str(start)+","+str(int(delta))+"])\\blur2}"
-                #localtext += boiler+word.upper().replace(" "," "+boiler)
-                localtext += duration+word.upper()+" "
+                duration = "{\\k" + str(abs(round(delta * 100))) + "}"
+                localtext += duration + word.upper() + " "
         
-        style = "s"+str(random.randint(0,len(styles)-1))
+        style = "s" + str(random.randint(0, len(styles) - 1))
             
+        # Split long lines into multiple lines for readability
         words = localtext.split("{\q1")
-        if len(words)==5:  ## add a line break if there are more than 4 words
-            localtext = "{\q1"+words[1]+"{\q1"+words[2]+"\\N{\q1"+words[3]+"{\q1"+words[4]
+        if len(words) == 5:
+            localtext = "{\q1" + words[1] + "{\q1" + words[2] + "\\N{\q1" + words[3] + "{\q1" + words[4]
 
-        file.write(f"""Dialogue: 0,{time_to_hhmmss(globalstart)},{time_to_hhmmss(globalend)},{style},,50,50,20,fx,{localtext}"""+  "\n")
+        # Write formatted subtitle event to the ASS file
+        file.write(f"Dialogue: 0,{format_seconds_to_hhmmss(globalstart)},{format_seconds_to_hhmmss(globalend)},{style},,50,50,20,fx,{localtext}\n")
 
+def generate_thumbnail(path_in, thumbnail_path):
+    """Generates a thumbnail from the input video at 1 second."""
+    try:
+        # Open the input video file and extract thumbnail
+        probe = ffmpeg.probe(path_in)
+        video_stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
+
+        if not video_stream:
+            raise ValueError("Input file is not a valid video file.")
+
+        # Use ffmpeg to extract thumbnail with specified dimensions and parameters
+        (
+            ffmpeg
+            .input(path_in, ss=1)
+            .output(
+                thumbnail_path,
+                vframes=1,
+                vf='scale=200:100:force_original_aspect_ratio=decrease,pad=200:100:(ow-iw)/2:(oh-ih)/2,crop=200:100'
+            )
+            .run(overwrite_output=True, quiet=True)  # Suppress output to console
+        )
+
+        print(f"Thumbnail generated successfully: {thumbnail_path}")
+    except ffmpeg.Error as e:
+        print(f"Error generating thumbnail: {e.stderr}")
+    except Exception as e:
+        print(f"Error: {e}")
+
+def process_video(path_in, path_out, emoji, lsilence, isVideoAligned):
+    """Processes a video based on specified parameters."""
+    tab = []       # Reset tab for each video processing task
+    new_tab = []   # Reset new_tab for each video processing task
+    words = []     # Reset words for each video processing task
+
+    ass_path = os.path.join("temp", f"{extract_filename_without_extension(path_in)}.ass")  # Define ASS file path
     
-def generate_thumbnail(path_in,thumbnail_path):
-    thumbnail_command = f"""ffmpeg -i {path_in} -ss 00:00:01 -vframes 1 -vf "scale=200:100:force_original_aspect_ratio=decrease,pad=200:100:(ow-iw)/2:(oh-ih)/2,crop=200:100" {thumbnail_path}"""
-    os.system(thumbnail_command)
+    audio_path = extract_audio_from_videos([path_in])[path_in]  # Get audio file path from video
 
-def process_video(path_in,path_out,emoji,lsilence,video_aligned):
-    width = 0
-    heigh = 0  
-    ass_path = "temp/"
-    width,heigh = get_dimensions(path=path_in)
-    ass_path = os.path.join(ass_path, f"{filename(path_in)}.ass")  
+    words = get_transcribe(audio_path)  # Transcribe audio to extract words
 
-    audio_path = get_audio([path_in])[path_in]
-
-    words = get_transcribe(audio_path)
-
-    if video_aligned :
-        video_aligned(words,ass_path, emoji,path_in,path_out)
-    else :
-        video_non_aligned(words,ass_path, emoji,path_in,path_out)
-
-def format_timestamp(seconds: float, always_include_hours: bool = False):
-    assert seconds >= 0, "non-negative timestamp expected"
-    milliseconds = round(seconds * 1000.0)
-
-    hours = milliseconds // 3_600_000
-    milliseconds -= hours * 3_600_000
-
-    minutes = milliseconds // 60_000
-    milliseconds -= minutes * 60_000
-
-    seconds = milliseconds // 1_000
-    milliseconds -= seconds * 1_000
-
-    hours_marker = f"{hours:02d}:" if always_include_hours or hours > 0 else ""
-    return f"{hours_marker}{minutes:02d}:{seconds:02d},{milliseconds:03d}"
-
-def video_aligned(words,ass_path,emoji,path_in,path_out):
-    write_ass(words=words)
-
-    analyse_tab_durations() 
-        
-    with open(ass_path,"w", encoding="utf-8") as ass:
-        write_ass_file(file=ass)
-
-    emojis_list = [("1", 1.523, 5.518), ("2", 10.5, 15.5), ("3", 20.5, 25.5)]
-
-    if emoji:
-        overlay_images_on_video(in_path=path_in,out_path=path_out,emojis_list=emojis_list,width=width,height=heigh,ass=ass_path)
+    if isVideoAligned:
+        video_aligned(words, ass_path, emoji, path_in, path_out, lsilence)  # Process aligned video
     else:
-        overlay_images_on_video(in_path=path_in,out_path=path_out,emojis_list=None,width=width,height=heigh,ass=ass_path)
-
-    if lsilence:
-        rm_silent_parts(path_out,path_out)
-        
-    return path_out
+        video_non_aligned(words, ass_path, emoji, path_in, path_out)  # Process non-aligned video
 
 def write_srt(transcript: Iterator[dict], file: TextIO):
+    """Writes a transcript to an SRT file."""
     for i, segment in enumerate(transcript, start=1):
+        # Format and write each transcript segment to the SRT file
         print(
             f"{i}\n"
             f"{format_timestamp(segment['start'], always_include_hours=True)} --> "
@@ -182,14 +183,70 @@ def write_srt(transcript: Iterator[dict], file: TextIO):
             file=file,
             flush=True,
         )
-        
-def video_non_aligned(words,ass_path,emoji,path_in,path_out):
-    srt_path = ass_path.replace(".ass",".srt")
-    with open(srt_path, "w", encoding="utf-8") as srt:
-        write_srt(words, file=srt)
-    video = ffmpeg.input(path_in)
-    audio = video.audio
 
+def video_non_aligned(words, ass_path, emoji, path_in, path_out):
+    """Processes a non-aligned video with generated subtitles."""
+    srt_path = ass_path.replace(".ass", ".srt")  # Define SRT file path from ASS file
+
+    with open(srt_path, "w", encoding="utf-8") as srt:
+        write_srt(words, file=srt)  # Write transcript to SRT file
+
+    video = ffmpeg.input(path_in)  # Open input video
+    audio = video.audio  # Extract audio from video
+
+    # Concatenate video with subtitles using ffmpeg and output the processed video
     ffmpeg.concat(
-        video.filter('subtitles', srt_path, force_style="OutlineColour=&H40000000,BorderStyle=3"), audio, v=1, a=1
-    ).output(path_out).run(quiet=True, overwrite_output=True)
+        video.filter('subtitles', srt_path, force_style="OutlineColour=&H40000000,BorderStyle=3"),
+        audio,
+        v=1, a=1
+    ).output(path_out).run(quiet=True, overwrite_output=True)  # Suppress output and overwrite output file
+
+    # Optionally remove silent parts from the processed video
+    if lsilence:
+        rm_silent_parts(path_out, path_out)
+
+    return path_out  # Return processed video path
+
+def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence):
+    # Get the dimensions (width and height) of the input video
+    width, height = get_video_dimensions(video_path=path_in)
+
+    # Generate ASS script file based on the provided words
+    write_ass(words=words)
+
+    # Analyze and process the durations and grouping of words
+    analyse_tab_durations() 
+        
+    # Write the ASS script to a file at the specified path
+    with open(ass_path, "w", encoding="utf-8") as ass:
+        write_ass_file(file=ass)
+
+    # Define a list of emojis with their start and end times
+    emojis_list = [("1", 1.523, 5.518), ("2", 10.5, 15.5), ("3", 20.5, 25.5)]
+
+    # Overlay emojis on the input video if emoji flag is True
+    if emoji:
+        overlay_images_on_video(
+            in_path=path_in,
+            out_path=path_out,
+            emojis_list=emojis_list,
+            width=width,
+            height=height,
+            ass=ass_path
+        )
+    else:
+        # If no emojis are provided, simply overlay the ASS script on the video
+        overlay_images_on_video(
+            in_path=path_in,
+            out_path=path_out,
+            emojis_list=None,
+            width=width,
+            height=height,
+            ass=ass_path
+        )
+
+    # Remove silent parts from the output video if lsilence flag is True
+    if lsilence:
+        rm_silent_parts(path_out, path_out)
+        
+    return path_out
