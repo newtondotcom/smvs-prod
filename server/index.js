@@ -8,7 +8,7 @@ cron.schedule('0 3 * * *', () => {
   buckets.forEach((bucket) => cleanS3(bucket));
 });
 
-// REDIRECT AMPQ
+/*
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -20,3 +20,4 @@ app.use(cors());
 app.listen(3000, () =>
   console.log('Example app listening on port 3000!')
 );
+*/
