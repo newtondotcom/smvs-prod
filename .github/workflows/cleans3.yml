@@ -23,8 +23,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build worker/ \
-            --file Dockerfile \
+          docker build server/ \
             --tag ${{ secrets.DOCKER_REGISTRY }}/${{ secrets.IMAGE_CLEANER_NAME }}:${{ secrets.IMAGE_CLEANER_TAG }} \
             --platform ${{ matrix.platform }} \
             --secret id=.env,src=.env
