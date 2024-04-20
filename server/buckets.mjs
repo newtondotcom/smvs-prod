@@ -1,10 +1,10 @@
 const buckets = [
     {
         name : "videos",
-        endpoint : '144.91.123.186',
-        port : 32771,
-        accessKey : 'oJTJnZIz0lJ8RblZMLbb',
-        secretKey : 'nyAeRaWm1vo9mBBwgKqhLzP1Yjws7V5IpVrfKPEe'
+        endpoint : process.env.S3_HOST,
+        port : process.env.S3_PORT,
+        accessKey : process.env.S3_KEY_ID,
+        secretKey : process.env.S3_SECRET_KEY,
     }
 ]
 
