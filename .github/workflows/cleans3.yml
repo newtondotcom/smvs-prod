@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platform: [linux/arm64]
+        platform: [linux/arm64/v8]
 
     steps:
       - name: Checkout
