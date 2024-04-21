@@ -6,7 +6,7 @@ Righ after, I have explained each directory role.
 
 ### Server
 
-This acts as a cron job to clean S] bucket with videos not used for 5 days. 
+This acts as a cron job to clean S3 bucket with videos not used for 5 days. 
 
 ### Worker
 
