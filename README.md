@@ -2,7 +2,7 @@
 
 This repo contains everything needed for the Yogocap Backend. 
 
-Righ after, I have explained each directory role.
+Righ under this, you can read how the repo structure is explained :
 
 ### Server
 
