@@ -158,12 +158,15 @@ def process_video(path_in, path_out, emoji, lsilence, isVideoAligned):
     
     audio_path = extract_audio_from_videos([path_in])[path_in]  # Get audio file path from video
 
-    words = get_transcribe(audio_path)  # Transcribe audio to extract words
+    word, time_transcription, time_alignment = get_transcribe(audio_path)  # Transcribe audio to extract words
 
+    time_encoding = 0
     if isVideoAligned:
-        video_aligned(words, ass_path, emoji, path_in, path_out, lsilence)  # Process aligned video
+        time_encoding = video_aligned(words, ass_path, emoji, path_in, path_out, lsilence)  # Process aligned video
     else:
-        video_non_aligned(words, ass_path, emoji, path_in, path_out)  # Process non-aligned video
+        time_encoding = video_non_aligned(words, ass_path, emoji, path_in, path_out)  # Process non-aligned video
+
+    return time_encoding,time_transcription,time_alignment
 
 def video_non_aligned(words, ass_path, emoji, path_in, path_out):
     """Processes a non-aligned video with generated subtitles."""
@@ -176,7 +179,7 @@ def video_non_aligned(words, ass_path, emoji, path_in, path_out):
     width, height = get_video_dimensions(video_path=path_in)
 
     # simply overlay the ASS script on the video
-    overlay_images_on_video(
+    time_encoding = overlay_images_on_video(
         in_path=path_in,
         out_path=path_out,
         emojis_list=None,
@@ -184,6 +187,7 @@ def video_non_aligned(words, ass_path, emoji, path_in, path_out):
         height=height,
         ass=ass_path
     )
+    return time_encoding
 
 def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence):
     # Get the dimensions (width and height) of the input video
@@ -202,9 +206,11 @@ def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence):
     # Define a list of emojis with their start and end times
     emojis_list = [("1", 1.523, 5.518), ("2", 10.5, 15.5), ("3", 20.5, 25.5)]
 
+    time_encoding = 0
+
     # Overlay emojis on the input video if emoji flag is True
     if emoji:
-        overlay_images_on_video(
+        time_encoding = overlay_images_on_video(
             in_path=path_in,
             out_path=path_out,
             emojis_list=emojis_list,
@@ -214,7 +220,7 @@ def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence):
         )
     else:
         # If no emojis are provided, simply overlay the ASS script on the video
-        overlay_images_on_video(
+        time_encoding = overlay_images_on_video(
             in_path=path_in,
             out_path=path_out,
             emojis_list=None,
