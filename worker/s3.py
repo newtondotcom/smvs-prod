@@ -41,6 +41,7 @@ class S3:
         try:
             # Upload local file to the bucket
             self.client.fput_object(self.bucket_name, file_key, local_file_path)
+            return self.host + "/" + self.bucket_name + "/" + file_key
             print(f"File uploaded successfully to S3 key: {file_key}")
         except Exception as e:
             print(f"Error uploading file: {e}")
