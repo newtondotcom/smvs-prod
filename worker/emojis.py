@@ -53,9 +53,11 @@ def overlay_images_on_video(in_path, out_path, width, height, ass, emojis_list=N
     tic = time.perf_counter()
     subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     toc = time.perf_counter()
+    time_encoding = toc - tic
 
     # Measure and print execution time
-    print(f"ffmpeg processing for video took: {toc - tic} seconds")
+    print(f"ffmpeg processing for video took: {time_encoding} seconds")
+    return time_encoding
 
 # Example usage:
 # overlay_images_on_video('input.mp4', 'output.mp4', 1280, 720, 'subtitles.ass', emojis_list=[('emoji1', 5.0, 10.0), ('emoji2', 15.0, 20.0)])

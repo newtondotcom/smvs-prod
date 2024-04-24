@@ -25,12 +25,23 @@ def main():
 
     video_aligned = False
 
-    process_video(path_in,path_out,emoji,lsilence,video_aligned)
+    time_encoding,time_transcription,time_alignment = process_video(path_in,path_out,emoji,lsilence,video_aligned)
 
     print("File processed: "+path_out)
 
     thumbnail_path = local_file_path.replace(".mp4", ".jpg")
     generate_thumbnail(path_in,thumbnail_path)
+
+    
+    body = {
+        "task_id": key_db,
+        "time_transcription": time_transcription,
+        "time_encoding": time_encoding,
+        "time_alignment": time_alignment,
+        "done_at": datetime.datetime.now().isoformat(),
+        "thumbnail": thumbnail_url
+    }
+    print(body)
 
     try:
         #os.remove(file_name)

@@ -57,13 +57,13 @@ def callback(ch, method, properties, body):
     path_in = local_file_path
     path_out = local_file_path.replace(".mp4","_out.mp4")
 
-    process_video(path_in,path_out,emoji,lsilence,video_aligned)
+    time_encoding,time_transcription,time_alignment = process_video(path_in,path_out,emoji,lsilence,video_aligned)
 
     print("File processed: "+path_out)
 
-    #Upload file to S3
+    #Upload video to S3
     file_key = path_out
-    s3.upload_file(file_key.replace("temp/",""), file_key.replace("temp/",""))
+    blc = s3.upload_file(file_key.replace("temp/",""), file_key.replace("temp/",""))
 
     print("File uploaded: "+file_key)
 
@@ -74,7 +74,19 @@ def callback(ch, method, properties, body):
     #add minia with very low resolution    
     thumbnail_path = local_file_path.replace(".mp4", "_thumbnail.jpg")
     generate_thumbnail(path_in,thumbnail_path)
-    s3_minia.upload_file("minia",thumbnail_path)
+    thumbnail_url = s3_minia.upload_file("minia",thumbnail_path)
+
+
+    # construction of the body for the frontend
+    body = {
+        "task_id": key_db,
+        "time_transcription": time_transcription,
+        "time_encoding": time_encoding,
+        "time_alignment": time_alignment,
+        "done_at": datetime.datetime.now().isoformat(),
+        "thumbnail": thumbnail_url
+    }
+    #request.post("http://localhost:5000/api/v1/tasks", json=body)
 
     try:
         os.remove(file_name)
