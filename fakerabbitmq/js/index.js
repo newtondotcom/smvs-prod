@@ -2,7 +2,7 @@ const amqp = require('amqplib');
 import dotenv from 'dotenv';
 dotenv.config("../../.env");
 
-const rabbitMQUrl = 'amqp://144.91.123.186:15672';
+const rabbitMQUrl = 'amqp://' + process.env.RABBIT_HOST + ':' + process.env.RABBIT_PORT;
 const exchange = 'tasks';
 const workerQueue = 'task_queue';
 
