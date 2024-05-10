@@ -233,4 +233,4 @@ def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence):
     if lsilence:
         rm_silent_parts(path_out, path_out)
         
-    return path_out
+    return time_encoding
