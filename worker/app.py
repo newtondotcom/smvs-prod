@@ -34,18 +34,14 @@ def callback(ch, method, properties, body):
     bodyjson = json.loads(body)
 
     ## Parameters
-    #file_bucket_name = bodyjson['file_bucket_name']
+    s3_name = bodyjson['s3_name']
     file_name = bodyjson['file_name']
     emoji = bodyjson['emoji']
-    lsilence = bodyjson['silence']
+    lsilence = bodyjson['lsilence']
     video_aligned = bodyjson['video_aligned']
     key_db = bodyjson['key_db']
 
-    ## Default parameters
-    #file_bucket_name = "videos"
-    #file_name = "test.mp4"
-    #emoji = True
-    #lsilence = True
+    print("Trying to download file: "+file_name)
 
     #Download file from S3
     local_file_path = "temp/"+file_name
@@ -61,20 +57,22 @@ def callback(ch, method, properties, body):
 
     print("File processed: "+path_out)
 
-    #Upload video to S3
+    #Upload video to videos S3
     file_key = path_out
-    blc = s3.upload_file(file_key.replace("temp/",""), file_key.replace("temp/",""))
+    s3_videos.upload_file(file_key, file_key)
 
     print("File uploaded: "+file_key)
 
-    s3.remove_file(file_name)
+    s3_videos.remove_file(file_name)
 
     print("File removed: "+file_name)
 
     #add minia with very low resolution    
-    thumbnail_path = local_file_path.replace(".mp4", "_thumbnail.jpg")
+    thumbnail_path = path_in.replace(".mp4", ".jpg")
     generate_thumbnail(path_in,thumbnail_path)
-    thumbnail_url = s3_minia.upload_file("minia",thumbnail_path)
+    s3_minia.upload_file(thumbnail_path,thumbnail_path)
+
+    print("Thumbnail uploaded: " + thumbnail_path.replace("temp/",""))
 
 
     # construction of the body for the frontend
@@ -84,16 +82,15 @@ def callback(ch, method, properties, body):
         "time_encoding": time_encoding,
         "time_alignment": time_alignment,
         "done_at": datetime.datetime.now().isoformat(),
-        "thumbnail": thumbnail_url
+        "thumbnail": file_name.replace(".mp4", ".jpg")
     }
-    #request.post("http://localhost:5000/api/v1/tasks", json=body)
+    requests.post("http://localhost:3000/api/dashboard/tasks", json=body)
 
     try:
-        os.remove(file_name)
+        clean_temporary_directory()
     except OSError:
         pass
 
-    clean_temporary_directory()
 
     #Advice server that file is ready
     ch.basic_ack(delivery_tag=method.delivery_tag)
