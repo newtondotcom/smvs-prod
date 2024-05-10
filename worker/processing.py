@@ -158,7 +158,7 @@ def process_video(path_in, path_out, emoji, lsilence, isVideoAligned):
     
     audio_path = extract_audio_from_videos([path_in])[path_in]  # Get audio file path from video
 
-    word, time_transcription, time_alignment = get_transcribe(audio_path)  # Transcribe audio to extract words
+    words, time_transcription, time_alignment = get_transcribe(audio_path)  # Transcribe audio to extract words
 
     time_encoding = 0
     if isVideoAligned:
