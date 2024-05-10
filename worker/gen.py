@@ -30,9 +30,10 @@ def get_transcribe(audio_file, align=False):
         return result['segments'], time_transcription, 0
 
     # 2. Align whisper output
-    model_a, metadata = whisperx.load_align_model(language_code="fr", device=device)
+    model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
     tic = time.perf_counter()
-    result = whisperx.align(datas, model_a, metadata, audio, device, return_char_alignments=False)
+    # datas
+    result = whisperx.align(result['segments'], model_a, metadata, audio, device, return_char_alignments=False)
     toc = time.perf_counter()
     time_alignment = toc - tic
     print("Alignment took ", time_alignment, " seconds")
