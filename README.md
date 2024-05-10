@@ -2,11 +2,8 @@
 
 This repo contains everything needed for the Yogocap Backend. 
 
-Righ under this, you can read how the repo structure is explained :
+Righ under this, you can read how the repo structure is built :
 
-### Server
-
-This acts as a cron job to clean S3 bucket with videos not used for 5 days. 
 
 ### Worker
 
@@ -19,6 +16,13 @@ This folder contains two servers [one in [Python](https://github.com/python/cpyt
 ### Inputs
 
 This folder contains test videos for the worker and for the two servers.
+
+
+### Server
+
+This acts as a cron job to clean S3 bucket with videos not used for 5 days. 
+
+> Deprecated : [Minio](https://github.com/minio/minio) provide Lifecycle Rules for this purpose
 
 ## License 
 This software is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License [CC BY-NC 4.0]. For details, see [LICENSE](LICENSE)
