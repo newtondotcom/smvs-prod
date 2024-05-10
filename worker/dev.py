@@ -13,17 +13,17 @@ thumbnails_bucket_name = "thumbnails"
 
 def main():
     ## Default parameters
-    emoji = True
+    emoji = False
     lsilence = False
 
     #Download file from S3
-    local_file_path = "../inputs/palma.mp4"
+    local_file_path = "../inputs/input.mp4"
 
     #Process file
     path_in = local_file_path
     path_out = local_file_path.replace(".mp4","_out.mp4")
 
-    video_aligned = False
+    video_aligned = True
 
     time_encoding,time_transcription,time_alignment = process_video(path_in,path_out,emoji,lsilence,video_aligned)
 
