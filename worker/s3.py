@@ -2,6 +2,8 @@ from minio import Minio
 import os
 from minio.error import S3Error
 from dotenv import load_dotenv
+import datetime
+import requests 
 load_dotenv()
 
 # Replace these with your AWS credentials and S3 bucket and file information
@@ -16,7 +18,7 @@ class S3:
         self.access_key = S3_ACCESS_KEY
         self.secret_key = S3_SECRET_KEY
         self.host = S3_HOST
-        self.secure = S3_SECURE
+        self.secure = False if S3_SECURE == "False" else True
         
         # Initialize Minio client
         self.client = Minio(
@@ -38,7 +40,10 @@ class S3:
             print(f"Error downloading file: {e}")
 
     def upload_file(self, local_file_path, file_key):
-        try:
+        try:        
+            # Upload local file to the bucket without storing in a temp folder
+            # Remove the 'temp/' prefix from the file_key
+            file_key = file_key.replace('temp/', '')
             # Upload local file to the bucket
             self.client.fput_object(self.bucket_name, file_key, local_file_path)
             return self.host + "/" + self.bucket_name + "/" + file_key
