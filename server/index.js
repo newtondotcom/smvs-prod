@@ -6,6 +6,7 @@ import buckets from './buckets.mjs';
 cron.schedule('0 3 * * *', () => {
   console.log('Running a task every day at 3am');
   buckets.forEach((bucket) => cleanS3(bucket));
+  // INSTEAD : ping the frontend to clean the buckets
 });
 
 /*
