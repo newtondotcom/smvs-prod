@@ -1,31 +1,36 @@
 from minio import Minio
 import os
+from lists3 import *
 from minio.error import S3Error
 from dotenv import load_dotenv
 import datetime
 import requests 
 load_dotenv()
 
-# Replace these with your AWS credentials and S3 bucket and file information
-S3_ACCESS_KEY = os.environ.get("S3_KEY_ID")
-S3_SECRET_KEY = os.environ.get("S3_SECRET_KEY")
-S3_HOST = os.environ.get("S3_HOST")
-S3_SECURE = os.environ.get("S3_SECURE")
-
 class S3:
-    def __init__(self, bucket_name):
-        self.bucket_name = bucket_name
-        self.access_key = S3_ACCESS_KEY
-        self.secret_key = S3_SECRET_KEY
-        self.host = S3_HOST
-        self.secure = False if S3_SECURE == "False" else True
+    def __init__(self, s3name):
+        bucket = get_s3(s3name)
+        S3_ACCESS_KEY = bucket['access_key']
+        S3_SECRET_KEY = bucket['secret_key']
+        S3_HOST = bucket['endpoint']
+        S3_SECURE = bucket['ssl']
+        S3_PORT = bucket['port']
+        S3_BUCKET_NAME = bucket['bucket']
+        print(bucket)
+        self.host = S3_HOST.strip()
+        self.port = S3_PORT
+        self.secure = S3_SECURE
+        self.access_key = S3_ACCESS_KEY.strip()
+        self.secret_key = S3_SECRET_KEY.strip()
+        self.bucket_name = S3_BUCKET_NAME.strip()
         
         # Initialize Minio client
         self.client = Minio(
-            self.host,
+            self.host + ":" + str(self.port),
             access_key=self.access_key,
             secret_key=self.secret_key,
-            secure=self.secure
+            secure=self.secure,
+            region='us-east-1'
         )
 
     def download_file(self, file_key, local_file_path):
@@ -39,8 +44,9 @@ class S3:
         except Exception as e:
             print(f"Error downloading file: {e}")
 
-    def upload_file(self, local_file_path, file_key):
+    def upload_file(self, file_key):
         try:        
+            local_file_path = file_key
             # Upload local file to the bucket without storing in a temp folder
             # Remove the 'temp/' prefix from the file_key
             file_key = file_key.replace('temp/', '')
