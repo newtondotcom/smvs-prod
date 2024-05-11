@@ -10,19 +10,12 @@ load_dotenv()
 class S3:
     def __init__(self, s3name):
         bucket = get_s3(s3name)
-        S3_ACCESS_KEY = bucket['access_key']
-        S3_SECRET_KEY = bucket['secret_key']
-        S3_HOST = bucket['endpoint']
-        S3_SECURE = bucket['ssl']
-        S3_PORT = bucket['port']
-        S3_BUCKET_NAME = bucket['bucket']
-        print(bucket)
-        self.host = S3_HOST.strip()
-        self.port = S3_PORT
-        self.secure = S3_SECURE
-        self.access_key = S3_ACCESS_KEY.strip()
-        self.secret_key = S3_SECRET_KEY.strip()
-        self.bucket_name = S3_BUCKET_NAME.strip()
+        self.host = bucket['endpoint'].strip()
+        self.port = bucket['port']
+        self.secure = bucket['ssl']
+        self.access_key = bucket['access_key'].strip()
+        self.secret_key = bucket['secret_key'].strip()
+        self.bucket_name = bucket['bucket'].strip()
         
         # Initialize Minio client
         self.client = Minio(
