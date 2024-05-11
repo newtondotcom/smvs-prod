@@ -14,7 +14,6 @@ def get_list():
     }
     response = requests.get(url, headers=headers)
     s3s = response.json()
-    #s3s = [{'endpoint': '144.91.123.186', 'ssl': False, 'port': 32771, 'access_key': 'SkB1VfCDtJUcXcTGKBk3', 'secret_key': 'W2wsiZYSqt67NQbiSWMcxPjpm0kynOnMQAG7efR7', 'bucket': 'videos', 'name': 'main'}, {'endpoint': '144.91.123.186', 'ssl': False, 'port': 32771, 'access_key': 'SkB1VfCDtJUcXcTGKBk3', 'secret_key': 'W2wsiZYSqt67NQbiSWMcxPjpm0kynOnMQAG7efR7', 'bucket': 'thumbnails', 'name': 'thumbnails'}]
 
 
 get_list()

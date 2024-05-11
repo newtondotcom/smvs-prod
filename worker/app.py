@@ -12,6 +12,8 @@ load_dotenv()
 
 print(' Connecting to server ...')
 
+apikey = os.environ.get("API_KEY")
+
 RABBIT_HOST = os.environ.get("RABBIT_HOST")
 RABBIT_PORT = os.environ.get("RABBIT_PORT")
 try:
@@ -23,23 +25,24 @@ except pika.exceptions.AMQPConnectionError as exc:
 channel = connection.channel()
 channel.queue_declare(queue='task_queue', durable=True)
 
-videos_bucket_name = "videos"
-thumbnails_bucket_name = "thumbnails"
-s3_videos = S3(videos_bucket_name)
-s3_minia = S3(thumbnails_bucket_name)
+thumbnails_bucket = "thumbnails"
+s3_minia = S3(thumbnails_bucket)
 
 print(' Waiting for messages...')
 
 def callback(ch, method, properties, body):
+    global s3_minia
     bodyjson = json.loads(body)
 
     ## Parameters
-    s3_name = bodyjson['s3_name']
     file_name = bodyjson['file_name']
     emoji = bodyjson['emoji']
     lsilence = bodyjson['lsilence']
     video_aligned = bodyjson['video_aligned']
     key_db = bodyjson['key_db']
+
+    S3_name = bodyjson['s3_name']
+    s3_videos = S3(S3_name)
 
     print("Trying to download file: "+file_name)
 
@@ -59,7 +62,7 @@ def callback(ch, method, properties, body):
 
     #Upload video to videos S3
     file_key = path_out
-    s3_videos.upload_file(file_key, file_key)
+    s3_videos.upload_file(file_key)
 
     print("File uploaded: "+file_key)
 
@@ -70,7 +73,7 @@ def callback(ch, method, properties, body):
     #add minia with very low resolution    
     thumbnail_path = path_in.replace(".mp4", ".jpg")
     generate_thumbnail(path_in,thumbnail_path)
-    s3_minia.upload_file(thumbnail_path,thumbnail_path)
+    s3_minia.upload_file(thumbnail_path)
 
     print("Thumbnail uploaded: " + thumbnail_path.replace("temp/",""))
 
@@ -84,7 +87,8 @@ def callback(ch, method, properties, body):
         "done_at": datetime.datetime.now().isoformat(),
         "thumbnail": file_name.replace(".mp4", ".jpg")
     }
-    requests.post("http://localhost:3000/api/dashboard/tasks", json=body)
+    headers = {'Authorization': 'Bearer '+apikey}
+    requests.post("http://localhost:3000/api/dashboard/tasks",headers=headers, json=body)
 
     try:
         clean_temporary_directory()
