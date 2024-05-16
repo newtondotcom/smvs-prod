@@ -58,8 +58,15 @@ def analyse_tab_durations():
         else:
             retenue = group_words_based_on_threshold(tab, new_tab, seuil, j, moyenne_time, moyenne_length)
 
-def write_ass_file_aligned(file: TextIO):
+def write_ass_file_aligned(file: TextIO, position):
     """Writes formatted subtitles to an ASS file."""
+
+    position_subtitle = ""
+    if position == "center":
+        position_subtitle = "\\an5"
+    else:
+        position_subtitle = "\\an2"
+
     file.write("[Script Info]\n")
     file.write("ScriptType: v4.00\n")
     file.write("Collisions: Normal\n")
@@ -82,12 +89,12 @@ def write_ass_file_aligned(file: TextIO):
         i_color = (i_color + 1) % len(colors)
         
         # Generate boilerplate style and text for each subtitle segment
-        boiler = "{\\k40\\fad(0,0)\\be1\\b\\bord2\\shad1\\1c&&HFFFFFF&\\3c&H000000&\\q1\\an5\\b700" + color + "} "
+        boiler = "{\\k40\\fad(0,0)\\be1\\b\\bord2\\shad1\\1c&&HFFFFFF&\\3c&H000000&\\q1\\b700" + position_subtitle + color + "} "
         localtext = boiler
         
         if len(s) == 4:
             # Format specific segments within a group
-            boiler = "{\\fad(0,0)\\be1\\b\\bord2\\shad1\\1c&&HFFFFFF&\\3c&H000000&\\q1\\an5\\b700" + color + "} "
+            boiler = "{\\fad(0,0)\\be1\\b\\bord2\\shad1\\1c&&HFFFFFF&\\3c&H000000&\\q1\\b700" + position_subtitle + color + "} "
             localtext = boiler
             
             first_start = s[0][0]
@@ -148,7 +155,7 @@ def write_ass_file_non_aligned(contents,file: TextIO):
 
         file.write(f"Dialogue: 0,{format_seconds_to_hhmmss(s['start'])},{format_seconds_to_hhmmss(s['end'])},,,50,50,20,fx,{s['text'].strip().replace('-->', '->')}\n")
 
-def process_video(path_in, path_out, emoji, lsilence, isVideoAligned):
+def process_video(path_in, path_out, emoji, lsilence, isVideoAligned, position):
     """Processes a video based on specified parameters."""
     tab = []       # Reset tab for each video processing task
     new_tab = []   # Reset new_tab for each video processing task
@@ -162,7 +169,7 @@ def process_video(path_in, path_out, emoji, lsilence, isVideoAligned):
 
     time_encoding = 0
     if isVideoAligned:
-        time_encoding = video_aligned(words, ass_path, emoji, path_in, path_out, lsilence)  # Process aligned video
+        time_encoding = video_aligned(words, ass_path, emoji, path_in, path_out, lsilenc,position)  # Process aligned video
     else:
         time_encoding = video_non_aligned(words, ass_path, emoji, path_in, path_out)  # Process non-aligned video
 
@@ -189,7 +196,7 @@ def video_non_aligned(words, ass_path, emoji, path_in, path_out):
     )
     return time_encoding
 
-def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence):
+def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence, position):
     # Get the dimensions (width and height) of the input video
     width, height = get_video_dimensions(video_path=path_in)
 
@@ -201,7 +208,7 @@ def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence):
         
     # Write the ASS script to a file at the specified path
     with open(ass_path, "w", encoding="utf-8") as ass:
-        write_ass_file_aligned(file=ass)
+        write_ass_file_aligned(file=ass,position=position)
 
     # Define a list of emojis with their start and end times
     emojis_list = [("1", 1.523, 5.518), ("2", 10.5, 15.5), ("3", 20.5, 25.5)]
