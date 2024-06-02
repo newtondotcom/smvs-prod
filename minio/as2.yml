@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+  minio1:
+    restart: always
+    image: 'bitnami/minio:latest'
+    container_name: minio1
+    hostname: minio1
+    ports:
+      - '29874:9000'  # Custom port mapping
+      - '29875:9001'  # Custom console port mapping
+    environment:
+      - MINIO_ROOT_USER=newton
+      - MINIO_ROOT_PASSWORD=v36Z6u5Xkp88JKDEpSRqG86fZhMHJZkAqVuSwuU8omsr5Fqq5ikCFWTEDdpHfMYVWSyG29jejk7qixo9wAu8mFX4cS
+      - MINIO_DISTRIBUTED_MODE_ENABLED=yes
+      - MINIO_DISTRIBUTED_NODES=http://89.168.43.18:29874,http://158.178.203.52:9000
+      - MINIO_SKIP_CLIENT=yes
+    extra_hosts:
+      - "minio1:89.168.43.18"
+      - "minio2:158.178.203.52"
+    volumes:
+      - /opt/docker/minio/data:/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
