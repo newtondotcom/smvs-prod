@@ -23,9 +23,11 @@ def main():
     path_in = local_file_path
     path_out = local_file_path.replace(".mp4","_out.mp4")
 
+    position = "center"
+
     video_aligned = True
 
-    time_encoding,time_transcription,time_alignment = process_video(path_in,path_out,emoji,lsilence,video_aligned)
+    time_encoding,time_transcription,time_alignment = process_video(path_in,path_out,emoji,lsilence,video_aligned,position)
 
     print("File processed: "+path_out)
 

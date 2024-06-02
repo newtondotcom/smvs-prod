@@ -40,6 +40,7 @@ def callback(ch, method, properties, body):
     lsilence = bodyjson['lsilence']
     video_aligned = bodyjson['video_aligned']
     key_db = bodyjson['key_db']
+    position = bodyjson['position']
 
     S3_name = bodyjson['s3_name']
     s3_videos = S3(S3_name)
@@ -56,7 +57,7 @@ def callback(ch, method, properties, body):
     path_in = local_file_path
     path_out = local_file_path.replace(".mp4","_out.mp4")
 
-    time_encoding,time_transcription,time_alignment = process_video(path_in,path_out,emoji,lsilence,video_aligned)
+    time_encoding,time_transcription,time_alignment = process_video(path_in,path_out,emoji,lsilence,video_aligned,position)
 
     print("File processed: "+path_out)
 
