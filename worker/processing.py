@@ -169,7 +169,7 @@ def process_video(path_in, path_out, emoji, lsilence, isVideoAligned, position):
 
     time_encoding = 0
     if isVideoAligned:
-        time_encoding = video_aligned(words, ass_path, emoji, path_in, path_out, lsilenc,position)  # Process aligned video
+        time_encoding = video_aligned(words, ass_path, emoji, path_in, path_out, lsilence,position)  # Process aligned video
     else:
         time_encoding = video_non_aligned(words, ass_path, emoji, path_in, path_out)  # Process non-aligned video
 
