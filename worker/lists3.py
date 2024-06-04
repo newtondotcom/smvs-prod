@@ -5,15 +5,16 @@ load_dotenv()
 
 apikey = os.environ.get("API_KEY")
 s3s = []
+url = "https://app.yogocap.com/api/s3/list"
 
 def get_list():
     global s3s
-    url = 'http://localhost:3000/api/s3/list'
     headers = {
         'Authorization': 'Bearer '+apikey
     }
     response = requests.get(url, headers=headers)
     s3s = response.json()
+    print("S3 list updated")
 
 
 get_list()
