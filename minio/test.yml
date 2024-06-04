@@ -1,0 +1,53 @@
+version: '3.9'
+
+services:
+  minio1:
+    image: minio/minio
+    volumes:
+      - data1:/data
+    environment:
+      MINIO_ACCESS_KEY: "YOUR_ACCESS_KEY"
+      MINIO_SECRET_KEY: "YOUR_SECRET_KEY"
+    ports:
+      - "9001:9000"
+      - "9010:9001"
+    command: server http://minio{1...4}/data --console-address ":9001"
+
+  minio2:
+    image: minio/minio
+    volumes:
+      - data2:/data
+    environment:
+      MINIO_ACCESS_KEY: "YOUR_ACCESS_KEY"
+      MINIO_SECRET_KEY: "YOUR_SECRET_KEY"
+    ports:
+      - "9002:9000"
+    command: server http://minio{1...4}/data
+
+  minio3:
+    image: minio/minio
+    volumes:
+      - data3:/data
+    environment:
+      MINIO_ACCESS_KEY: "YOUR_ACCESS_KEY"
+      MINIO_SECRET_KEY: "YOUR_SECRET_KEY"
+    ports:
+      - "9003:9000"
+    command: server http://minio{1...4}/data
+
+  minio4:
+    image: minio/minio
+    volumes:
+      - data4:/data
+    environment:
+      MINIO_ACCESS_KEY: "YOUR_ACCESS_KEY"
+      MINIO_SECRET_KEY: "YOUR_SECRET_KEY"
+    ports:
+      - "9004:9000"
+    command: server http://minio{1...4}/data
+
+volumes:
+  data1:
+  data2:
+  data3:
+  data4:
