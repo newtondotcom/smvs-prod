@@ -7,7 +7,7 @@ device = "cpu"  # "cuda" or "cpu"
 batch_size = 8 # reduce if low on GPU mem, before 16
 compute_type = "int8" # change to "int8" if low on GPU mem (may reduce accuracy), before float16
 
-# medium model is "medium", large model is "large-v2"
+# medium model is "medium", large model is "large-v2", ligh is "base"
 tic = time.perf_counter()
 model = whisperx.load_model("base", device, compute_type=compute_type)
 toc = time.perf_counter()
