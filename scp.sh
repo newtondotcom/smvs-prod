@@ -1,0 +1,1 @@
+scp -P 12839 -r ./worker/ ubuntu@158.178.200.181:/home/ubuntu
