@@ -25,7 +25,7 @@ except pika.exceptions.AMQPConnectionError as exc:
 channel = connection.channel()
 channel.queue_declare(queue='task_queue', durable=True)
 
-thumbnails_bucket = "thumbnails"
+thumbnails_bucket = "thumbnails2"
 s3_minia = S3(thumbnails_bucket)
 
 print(' Waiting for messages...')
