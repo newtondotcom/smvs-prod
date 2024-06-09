@@ -89,7 +89,7 @@ def callback(ch, method, properties, body):
         "thumbnail": file_name.replace(".mp4", ".jpg")
     }
     headers = {'Authorization': 'Bearer '+apikey}
-    requests.post("http://localhost:3000/api/dashboard/tasks",headers=headers, json=body)
+    requests.post("https://app.yogocap.com/api/dashboard/tasks",headers=headers, json=body)
 
     try:
         clean_temporary_directory()
