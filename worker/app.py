@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import pika
 from s3 import *
 from utils import *
