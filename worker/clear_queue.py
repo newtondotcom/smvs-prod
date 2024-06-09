@@ -1,9 +1,13 @@
 import pika
 import json
 import sys
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 print('Connecting to server ...')
 
+host = os.environ.get("RABBIT_HOST")
 try:
     connection = pika.BlockingConnection(pika.ConnectionParameters(host="144.91.123.186", port=15672))
 except pika.exceptions.AMQPConnectionError as exc:
@@ -17,18 +21,9 @@ print('Waiting for messages...')
 
 channel.basic_qos(prefetch_count=1)
 
-i = 0
-nbclear = sys.argv[1]
-
 def callback(ch, method, properties, body):
-    global i
     ch.basic_ack(delivery_tag=method.delivery_tag)
-    i += 1
-    if i == nbclear:
-        ch.stop_consuming()
-        print("Done")
-        return
-    print("Done")
+    print(" [x] Received %r" % body)
 
 channel.basic_consume(queue='task_queue', on_message_callback=callback)
 channel.start_consuming()
