@@ -7,9 +7,10 @@ load_dotenv()
 
 print('Connecting to server ...')
 
-host = os.environ.get("RABBIT_HOST")
+RABBIT_HOST = os.environ.get("RABBIT_HOST")
+RABBIT_PORT = os.environ.get("RABBIT_PORT")
 try:
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="144.91.123.186", port=15672))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBIT_HOST,port=RABBIT_PORT))
 except pika.exceptions.AMQPConnectionError as exc:
     print("Failed to connect to RabbitMQ service. Message won't be sent.")
     exit()
