@@ -42,14 +42,15 @@ def callback(ch, method, properties, body):
     key_db = bodyjson['key_db']
     position = bodyjson['position']
 
-    S3_name = bodyjson['s3_name']
-    s3_videos = S3(S3_name)
+    #S3_name = bodyjson['s3_name']
+    s3_uploads = S3("uploads")
+    S3_downloads = S3("downloads")
 
     print("Trying to download file: "+file_name)
 
     #Download file from S3
     local_file_path = "temp/"+file_name
-    s3_videos.download_file(file_name, local_file_path)
+    s3_uploads.download_file(file_name, local_file_path)
 
     print("File downloaded: "+local_file_path)
 
@@ -63,11 +64,11 @@ def callback(ch, method, properties, body):
 
     #Upload video to videos S3
     file_key = path_out
-    s3_videos.upload_file(file_key)
+    S3_downloads.upload_file(file_key)
 
     print("File uploaded: "+file_key)
 
-    s3_videos.remove_file(file_name)
+    s3_uploads.remove_file(file_name)
 
     print("File removed: "+file_name)
 
