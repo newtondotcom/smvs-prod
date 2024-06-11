@@ -6,11 +6,11 @@ Right below, you can read how the repo structure is built:
 
 ### Worker 🛠️
 
-This is where the main magic happens. It combines [whisperX](https://github.com/m-bain/whisperX) and [FFmpeg](https://github.com/FFmpeg/FFmpeg) to generate social media video subtitles with word-level timestamps and coloration. The worker listens for incoming tasks on [RabbitMQ](https://github.com/rabbitmq/rabbitmq-server) sent by the [NuxtJs](https://github.com/nuxt/nuxt) [Yogocap's FrontEnd](https://github.com/newtondotcom/yogocap-nuxt).
+This is where the main magic happens. It combines [whisperX](https://github.com/m-bain/whisperX) and [FFmpeg](https://github.com/FFmpeg/FFmpeg) to generate social media video subtitles with word-level timestamps and coloration. The worker listens for incoming tasks on [RabbitMQ](https://github.com/rabbitmq/rabbitmq-server) sent by the [Nuxt](https://github.com/nuxt/nuxt) [Yogocap's front-end](https://github.com/newtondotcom/yogocap-nuxt).
 
 ### FakeRabbitMQ 🐇
 
-This folder contains two servers: [one in Python](https://github.com/python/cpython) and [one based on Node.js](https://github.com/nodejs/node), that emulate [Yogocap's FrontEnd](https://github.com/newtondotcom/yogocap-nuxt) by sending tasks to [RabbitMQ](https://github.com/rabbitmq/rabbitmq-server)'s queue on execution.
+This folder contains two servers: [one in Python](https://github.com/python/cpython) and [one based on Node.js](https://github.com/nodejs/node), that emulate [Yogocap's front-end](https://github.com/newtondotcom/yogocap-nuxt) by sending tasks to [RabbitMQ](https://github.com/rabbitmq/rabbitmq-server)'s queue on execution.
 
 ### Inputs 🎬
 
