@@ -9,7 +9,7 @@ compute_type = "int8" # change to "int8" if low on GPU mem (may reduce accuracy)
 
 # medium model is "medium", large model is "large-v2", ligh is "base"
 tic = time.perf_counter()
-model = whisperx.load_model("base", device, compute_type=compute_type)
+model = whisperx.load_model("large-v2", device, compute_type=compute_type)
 toc = time.perf_counter()
 print("Faster-Whisper model took ", toc - tic, " seconds to load")
 
