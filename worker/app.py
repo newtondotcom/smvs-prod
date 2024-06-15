@@ -36,8 +36,7 @@ def main():
 
     print(' Waiting for messages...')
 
-    def callback(ch, method, properties, body):
-        global s3_minia
+    def callback(ch, method, properties, body, s3_minia):
         bodyjson = json.loads(body)
 
         ## Parameters
@@ -50,7 +49,7 @@ def main():
 
         # S3_name = bodyjson['s3_name']
         s3_uploads = S3("uploads")
-        S3_downloads = S3("downloads")
+        s3_downloads = S3("downloads")
 
         print("Trying to download file: " + file_name)
 
@@ -70,7 +69,7 @@ def main():
 
         # Upload video to videos S3
         file_key = path_out
-        S3_downloads.upload_file(file_key)
+        s3_downloads.upload_file(file_key)
 
         print("File uploaded: " + file_key)
 
@@ -109,7 +108,7 @@ def main():
 
     try:
         channel.basic_qos(prefetch_count=1)
-        channel.basic_consume(queue='task_queue', on_message_callback=callback)
+        channel.basic_consume(queue='task_queue', on_message_callback=lambda ch, method, properties, body: callback(ch, method, properties, body, s3_minia))
         channel.start_consuming()
     except Exception as e:
         webhook = os.environ.get("DISCORD_WEBHOOK")
