@@ -157,6 +157,7 @@ def write_ass_file_non_aligned(contents,file: TextIO):
 
 def process_video(path_in, path_out, emoji, lsilence, isVideoAligned, position):
     """Processes a video based on specified parameters."""
+    global tab, new_tab, words
     tab = []       # Reset tab for each video processing task
     new_tab = []   # Reset new_tab for each video processing task
     words = []     # Reset words for each video processing task
