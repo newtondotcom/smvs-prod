@@ -20,7 +20,7 @@ This folder contains test videos for the worker and for the two servers.
 
 This acts as a cron job to clean the S3 bucket of videos not used for 5 days.
 
-> Deprecated: [Minio](https://github.com/minio/minio) provides Lifecycle Rules for this purpose.
+> Deprecated: [Minio](https://github.com/minio/minio) provides [Lifecycle Rules](https://min.io/docs/minio/linux/administration/object-management/create-lifecycle-management-expiration-rule.html) for this purpose.
 
 ## License 📜
 
