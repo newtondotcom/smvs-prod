@@ -13,7 +13,7 @@ thumbnails_bucket_name = "thumbnails"
 
 def main():
     ## Default parameters
-    emoji = False
+    emoji = True
     lsilence = False
 
     #Download file from S3
@@ -34,7 +34,8 @@ def main():
     thumbnail_path = local_file_path.replace(".mp4", ".jpg")
     generate_thumbnail(path_in,thumbnail_path)
 
-    
+    key_db = "1234567890"
+    thumbnail_url = "test"
     body = {
         "task_id": key_db,
         "time_transcription": time_transcription,
