@@ -116,9 +116,9 @@ def write_ass_file_aligned(file: TextIO, position):
         else:
             # Format individual words within a segment
             for segment in s:
-                word = segment[2]
                 start = segment[0]
                 end = segment[1]
+                word = segment[2]
                 delta = end - start
                 duration = "{\\k" + str(abs(round(delta * 100))) + "}"
                 localtext += duration + word.upper() + " "
@@ -197,11 +197,18 @@ def video_non_aligned(words, ass_path, emoji, path_in, path_out):
     )
     return time_encoding
 
+def compute_emojis():
+    array_for_emojis_processing = []
+    for i in new_tab:
+        words = [i[j][2] for j in range(len(i))]
+        array_for_emojis_processing.append([i[0][0],i[-1][1],words])
+    return array_for_emojis_processing
+
+
 def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence, position):
     # Get the dimensions (width and height) of the input video
     width, height = get_video_dimensions(video_path=path_in)
 
-    # Generate ASS script file based on the provided words
     populate_tabs(words=words)
 
     # Analyze and process the durations and grouping of words
@@ -211,13 +218,12 @@ def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence, position)
     with open(ass_path, "w", encoding="utf-8") as ass:
         write_ass_file_aligned(file=ass,position=position)
 
-    # Define a list of emojis with their start and end times
-    emojis_list = [("1", 1.523, 5.518), ("2", 10.5, 15.5), ("3", 20.5, 25.5)]
-
     time_encoding = 0
 
     # Overlay emojis on the input video if emoji flag is True
     if emoji:
+        array_for_emojis_processing = compute_emojis()
+        emojis_list = fetch_similar_emojis(array_for_emojis_processing)
         time_encoding = overlay_images_on_video(
             in_path=path_in,
             out_path=path_out,
