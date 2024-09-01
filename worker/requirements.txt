@@ -3,6 +3,7 @@ minio
 ffmpeg-python
 opencv-python
 moviepy
+argostranslate
 
 # https://github.com/m-bain/whisperX/blob/main/requirements.txt
 torch>=2
