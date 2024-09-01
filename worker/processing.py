@@ -166,11 +166,11 @@ def process_video(path_in, path_out, emoji, lsilence, isVideoAligned, position):
     
     audio_path = extract_audio_from_videos([path_in])[path_in]  # Get audio file path from video
 
-    words, time_transcription, time_alignment = get_transcribe(audio_path)  # Transcribe audio to extract words
+    words, langage , time_transcription, time_alignment = get_transcribe(audio_path)  # Transcribe audio to extract words
 
     time_encoding = 0
     if isVideoAligned:
-        time_encoding = video_aligned(words, ass_path, emoji, path_in, path_out, lsilence,position)  # Process aligned video
+        time_encoding = video_aligned(words, ass_path, emoji, path_in, path_out, lsilence,position,langage)  # Process aligned video
     else:
         time_encoding = video_non_aligned(words, ass_path, emoji, path_in, path_out)  # Process non-aligned video
 
@@ -205,7 +205,7 @@ def compute_emojis():
     return array_for_emojis_processing
 
 
-def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence, position):
+def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence, position,langage):
     # Get the dimensions (width and height) of the input video
     width, height = get_video_dimensions(video_path=path_in)
 
@@ -223,7 +223,7 @@ def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence, position)
     # Overlay emojis on the input video if emoji flag is True
     if emoji:
         array_for_emojis_processing = compute_emojis()
-        emojis_list = fetch_similar_emojis(array_for_emojis_processing)
+        emojis_list = fetch_similar_emojis(array_for_emojis_processing, langage)
         time_encoding = overlay_images_on_video(
             in_path=path_in,
             out_path=path_out,

@@ -32,6 +32,9 @@ def get_transcribe(audio_file, align=False):
     # 2. Align whisper output
     model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
     tic = time.perf_counter()
+
+    langage = result["language"]
+
     # datas
     result = whisperx.align(result['segments'], model_a, metadata, audio, device, return_char_alignments=False)
     toc = time.perf_counter()
@@ -41,5 +44,5 @@ def get_transcribe(audio_file, align=False):
     # delete model if low on **GPU** resources
     #gc.collect(); torch.cuda.empty_cache(); del model_a
     
-    return result['segments'], time_transcription, time_alignment
+    return result['segments'], langage , time_transcription, time_alignment
 
