@@ -1,13 +1,8 @@
 import subprocess
 import time
 from utils import *
-import re
 from translate import *
-
-def remove_punctuation_and_whitespace(text):
-    # Use regex to remove all non-alphabetic characters
-    cleaned_text = re.sub(r'[^a-zA-Z]', '', text)
-    return cleaned_text
+from styles import *
 
 emojis_dir = "emojis/images/"
 
@@ -21,27 +16,35 @@ def overlay_images_on_video(in_path, out_path, width, height, ass, emojis_list=N
         width (int): Width of the video.
         height (int): Height of the video.
         ass (str): Path to the ASS subtitle file.
-        emojis_list (list, optional): List of tuples (IMAGE_WORKER_NAME, start_time, end_time)
-            specifying images to overlay and their display times.
+        emojis_list (list, optional): List of tuples (name_png, start_time, end_time, offset_multiline)
+            specifying images png name to overlay and their display times.
+            - offset_multiline : 0 for none, 1 for offset
 
     Returns:
         None
     """
-    emoji_size = height / 10
+    emoji_size = height / 9
     y_offset = width / 100
     swidth = (width - emoji_size) / 2
-    sheight = (height - emoji_size) / 2 - 3*y_offset
+    sheight = (height - emoji_size) / 2 - 2*y_offset
+    offset_twolines = 2*calculate_text_height()
+    sheight_with_offset = sheight - offset_twolines
+
+    assert sheight > sheight_with_offset
 
     filter_complex = ""
 
     if emojis_list is not None:
         # Prepare emoji input list for ffmpeg
-        emojis_list = [(emojis_dir + image + ".png", start_time, end_time) for image, start_time, end_time in emojis_list]
+        emojis_list = [(emojis_dir + image + ".png", start_time, end_time, offset_multiline) for image, start_time, end_time, offset_multiline in emojis_list]
 
-        for idx, (IMAGE_WORKER_NAME, start_time, end_time) in enumerate(emojis_list):
+        for idx, (image, start_time, end_time, offset_multiline) in enumerate(emojis_list):
             previous_video = f"[{idx}v]" if idx > 0 else "[0:v]"
             # Build overlay filter for each emoji image
-            filter_complex += f"{previous_video}[{idx + 1}:v]overlay={swidth}:{sheight}:enable='between(t,{start_time},{end_time})'"
+            if offset_multiline == 1 :
+                filter_complex += f"{previous_video}[{idx + 1}:v]overlay={swidth}:{sheight_with_offset}:enable='between(t,{start_time},{end_time})'"
+            else:
+                filter_complex += f"{previous_video}[{idx + 1}:v]overlay={swidth}:{sheight}:enable='between(t,{start_time},{end_time})'"
             if idx < len(emojis_list) - 1:
                 filter_complex += f"[{idx + 1}v];"
             else:
@@ -49,7 +52,7 @@ def overlay_images_on_video(in_path, out_path, width, height, ass, emojis_list=N
 
         # Construct the complete ffmpeg command
         cmd = (
-            f"ffmpeg -i {in_path} {' '.join(['-i ' + image for image, _, _ in emojis_list])} "
+            f"ffmpeg -i {in_path} {' '.join(['-i ' + image for image, _, _, _ in emojis_list])} "
             f"-filter_complex \"{filter_complex}\" -map [out] -map 0:a -c:a copy {out_path} -y"
         )
     else:
@@ -75,7 +78,6 @@ def fetch_similar_emojis(array,langage):
         current_iteration_found_emoji_number = "0"
         sentence = word_group[2]
         translated_sentence = translate(" ".join(sentence),langage).split(" ")
-        print("Translated word group : " + " ".join(translated_sentence))
         for word in translated_sentence:
             for line in flatten_array:
                 numero = line[0]
@@ -86,8 +88,12 @@ def fetch_similar_emojis(array,langage):
                         current_iteration_found_emoji = True
                         current_iteration_found_emoji_number = numero
                         print("Found match for "+ echo + " corresding to emoji "+ numero)
-        if current_iteration_found_emoji :                
-            emojis_list.append([current_iteration_found_emoji_number,word_group[0],word_group[1]])
+        if current_iteration_found_emoji : 
+            if len(sentence) > 3: 
+                to_append = [current_iteration_found_emoji_number,word_group[0],word_group[1],1]    
+            else :
+                to_append = [current_iteration_found_emoji_number,word_group[0],word_group[1],0]         
+            emojis_list.append(to_append)
     print(str(len(emojis_list))+ " emojis have been found")
     return emojis_list
 
@@ -277,7 +283,7 @@ array = [
     ["183","🙌","raising hands",""],
     ["184","👐","open hands",""],
     ["185","🤲","palms up together",""],
-    ["186","🤝","handshake",""],
+    ["186","🤝","handshake","deal;handshake"],
     ["187","🙏","folded hands",""],
     ["188","✍","writing hand",""],
     ["189","💅","nail polish",""],
@@ -320,7 +326,7 @@ array = [
     ["226","🧑‍🦱","person: curly hair",""],
     ["227","👩‍🦳","woman: white hair",""],
     ["228","🧑‍🦳","person: white hair",""],
-    ["229","👩‍🦲","woman: bald",""],
+    ["229","👩‍🦲","woman: bald","bald"],
     ["230","🧑‍🦲","person: bald",""],
     ["231","👱‍♀️","woman: blond hair",""],
     ["232","👱‍♂️","man: blond hair",""],
@@ -334,8 +340,8 @@ array = [
     ["240","🙎‍♂️","man pouting",""],
     ["241","🙎‍♀️","woman pouting",""],
     ["242","🙅","person gesturing NO",""],
-    ["243","🙅‍♂️","man gesturing NO",""],
-    ["244","🙅‍♀️","woman gesturing NO",""],
+    ["243","🙅‍♂️","man gesturing NO","refused"],
+    ["244","🙅‍♀️","woman gesturing NO","refuse;refusing"],
     ["245","🙆","person gesturing OK",""],
     ["246","🙆‍♂️","man gesturing OK",""],
     ["247","🙆‍♀️","woman gesturing OK",""],
@@ -525,7 +531,7 @@ array = [
     ["431","⛹","person bouncing ball",""],
     ["432","⛹️‍♂️","man bouncing ball",""],
     ["433","⛹️‍♀️","woman bouncing ball",""],
-    ["434","🏋","person lifting weights",""],
+    ["434","🏋","person lifting weights","hard;heavy"],
     ["435","🏋️‍♂️","man lifting weights",""],
     ["436","🏋️‍♀️","woman lifting weights",""],
     ["437","🚴","person biking",""],
@@ -1401,7 +1407,7 @@ array = [
     ["1338","🛃","customs",""],
     ["1339","🛄","baggage claim",""],
     ["1340","🛅","left luggage",""],
-    ["1341","⚠","warning",""],
+    ["1341","⚠","warning","toxicity;danger;warning"],
     ["1342","🚸","children crossing",""],
     ["1343","⛔","no entry",""],
     ["1344","🚫","prohibited",""],
@@ -1460,7 +1466,7 @@ array = [
     ["1397","♒","Aquarius",""],
     ["1398","♓","Pisces",""],
     ["1399","⛎","Ophiuchus",""],
-    ["1400","🔀","shuffle tracks button",""],
+    ["1400","🔀","shuffle tracks button","shuffle"],
     ["1401","🔁","repeat button",""],
     ["1402","🔂","repeat single button",""],
     ["1403","▶","play button",""],
@@ -1482,7 +1488,7 @@ array = [
     ["1419","🔅","dim button",""],
     ["1420","🔆","bright button",""],
     ["1421","📶","antenna bars",""],
-    ["1422","📳","vibration mode",""],
+    ["1422","📳","vibration mode","vibration;notification"],
     ["1423","📴","mobile phone off",""],
     ["1424","♀","female sign",""],
     ["1425","♂","male sign",""],
@@ -1879,7 +1885,10 @@ array = [
     ["1816","🏴󠁧󠁢󠁷󠁬󠁳󠁿","flag: Wales","Wales;Welsh"]
 ]
 
+for i in array:
+    is_third_column_composed = i[2].count(" ") > 0
+    if not is_third_column_composed and i[3] == "":
+        i[3] = i[2].lower()
 flatten_array = [[item[0],item[3].split(";")] for item in array]
-
 
 # print(fetch_similar_emojis([[0,1,["contrôle","de","police"]]],"fr"))
