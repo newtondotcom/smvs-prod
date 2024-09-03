@@ -1,13 +1,11 @@
 import random
 import os
-import re
-from typing import Iterator, TextIO
+from typing import TextIO
 from styles import *
 from utils import *
 from silent import *
 from emojis import *
 from gen import *
-import ffmpeg
 
 # http://www.looksoftware.com/help/v11/Content/Reference/Language_Reference/Constants/Color_constants.htm
 # rouge, jaune, vert

@@ -3,8 +3,6 @@ import os
 from lists3 import *
 from minio.error import S3Error
 from dotenv import load_dotenv
-import datetime
-import requests 
 load_dotenv()
 
 class S3:

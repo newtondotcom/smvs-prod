@@ -1,7 +1,7 @@
 import os
 import ffmpeg
-import random
 import cv2
+import shutil
 
 def extract_filename_without_extension(file_path):
     """Extracts the filename without extension from a given file path."""

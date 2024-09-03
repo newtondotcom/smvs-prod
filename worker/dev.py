@@ -1,4 +1,3 @@
-import pika
 from s3 import *
 from utils import *
 from gen import *
@@ -6,7 +5,6 @@ from silent import *
 from s3 import *
 from emojis import *
 from processing import *
-import json
 
 videos_bucket_name = "videos"
 thumbnails_bucket_name = "thumbnails"

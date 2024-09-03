@@ -24,7 +24,7 @@ def main():
     RABBIT_PORT = os.environ.get("RABBIT_PORT")
     try:
         connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBIT_HOST, port=RABBIT_PORT, heartbeat=600))
-    except pika.exceptions.AMQPConnectionError as exc:
+    except pika.exceptions.AMQPConnectionError:
         print("Failed to connect to RabbitMQ service. Message won't be sent.")
         exit()
         

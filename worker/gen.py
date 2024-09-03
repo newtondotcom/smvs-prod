@@ -1,7 +1,5 @@
 import whisperx
-import gc 
 import time
-from testdata import datas
 
 device = "cpu"  # "cuda" or "cpu"
 batch_size = 8 # reduce if low on GPU mem, before 16

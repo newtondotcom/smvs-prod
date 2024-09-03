@@ -6,7 +6,6 @@ from silent import *
 from s3 import *
 from emojis import *
 from processing import *
-import json
 
 def main(local_file_path):
     ## Default parameters

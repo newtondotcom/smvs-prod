@@ -1,8 +1,5 @@
 import math
-import sys
-import os
-import shutil
-from moviepy.editor import AudioClip, VideoFileClip, concatenate_videoclips
+from moviepy.editor import VideoFileClip, concatenate_videoclips
 
 
 # Iterate over audio to find the non-silent parts. Outputs a list of

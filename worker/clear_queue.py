@@ -1,6 +1,4 @@
 import pika
-import json
-import sys
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -11,7 +9,7 @@ RABBIT_HOST = os.environ.get("RABBIT_HOST")
 RABBIT_PORT = os.environ.get("RABBIT_PORT")
 try:
     connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBIT_HOST,port=RABBIT_PORT))
-except pika.exceptions.AMQPConnectionError as exc:
+except pika.exceptions.AMQPConnectionError:
     print("Failed to connect to RabbitMQ service. Message won't be sent.")
     exit()
     

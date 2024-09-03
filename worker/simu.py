@@ -1,7 +1,6 @@
 import pika
 from s3 import *
 import json
-import time
 import datetime
 import requests
 from dotenv import load_dotenv
@@ -13,7 +12,7 @@ RABBIT_HOST = os.environ.get("RABBIT_HOST")
 RABBIT_PORT = os.environ.get("RABBIT_PORT")
 try:
     connection = pika.BlockingConnection(pika.ConnectionParameters(host=RABBIT_HOST,port=RABBIT_PORT))
-except pika.exceptions.AMQPConnectionError as exc:
+except pika.exceptions.AMQPConnectionError:
     print("Failed to connect to RabbitMQ service. Message wont be sent.")
     exit()
     
@@ -33,11 +32,6 @@ def callback(ch, method, properties, body):
     print(bodyjson)
 
     ## Parameters
-    #file_bucket_name = bodyjson['file_bucket_name']
-    file_name = bodyjson['file_name']
-    emoji = bodyjson['emoji']
-    lsilence = bodyjson['lsilence']
-    video_aligned = bodyjson['video_aligned']
     key_db = bodyjson['key_db']
 
     #time.sleep(5)
