@@ -1,0 +1,6 @@
+services:
+  libretranslate:
+    image: libretranslate/libretranslate
+    ports:
+      - "5000:5000"
+    container_name: libretranslate
