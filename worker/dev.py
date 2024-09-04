@@ -22,7 +22,7 @@ def main():
     path_in = local_file_path
     path_out = local_file_path.replace(".mp4","_out.mp4")
 
-    position = "center"
+    position = "ani-center"
 
     video_aligned = True
 

@@ -6,7 +6,7 @@ from styles import *
 
 emojis_dir = "../emojis/images/"
 
-def overlay_images_on_video(in_path, out_path, width, height, ass, position, emojis_list=None):
+def overlay_images_on_video(in_path, out_path, width, height, ass, position,font_size_pt, emojis_list=None):
     """
     Overlays images on a video using ffmpeg.
 
@@ -26,17 +26,15 @@ def overlay_images_on_video(in_path, out_path, width, height, ass, position, emo
     emoji_size = height / 9
     y_offset = width / 100
 
-    offset_oneline = calculate_text_height()
+    offset_oneline = calculate_text_height(font_size_pt)
     if position == "center":
         swidth = (width - emoji_size) / 2 
         sheight = (height - emoji_size) / 2 - 2*offset_oneline
         sheight_with_offset = sheight - offset_oneline
     else:
         swidth = (width - emoji_size) / 2
-        sheight = height * 3 / 2 - 2*offset_oneline
-        sheight_with_offset = sheight - offset_oneline
-
-    assert sheight > sheight_with_offset
+        sheight = height * 3 / 4 + 1*offset_oneline
+        sheight_with_offset = sheight - 2*offset_oneline
 
     filter_complex = ""
 
@@ -209,7 +207,7 @@ array = [
     ["93","😡","pouting face",""],
     ["94","😠","angry face",""],
     ["95","🤬","face with symbols on mouth",""],
-    ["96","😈,smiling face with horns","demon;devil"],
+    ["96","😈","smiling face with horns","demon;devil"],
     ["97","👿","angry face with horns","tyrant"],
     ["98","💀,skull"," skull",""],
     ["99","☠","skull and crossbones",""],
