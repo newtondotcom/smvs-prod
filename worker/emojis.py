@@ -6,7 +6,7 @@ from styles import *
 
 emojis_dir = "../emojis/images/"
 
-def overlay_images_on_video(in_path, out_path, width, height, ass, emojis_list=None):
+def overlay_images_on_video(in_path, out_path, width, height, ass, position, emojis_list=None):
     """
     Overlays images on a video using ffmpeg.
 
@@ -25,10 +25,16 @@ def overlay_images_on_video(in_path, out_path, width, height, ass, emojis_list=N
     """
     emoji_size = height / 9
     y_offset = width / 100
-    swidth = (width - emoji_size) / 2
-    sheight = (height - emoji_size) / 2 - 2*y_offset
-    offset_twolines = 2*calculate_text_height()
-    sheight_with_offset = sheight - offset_twolines
+
+    offset_oneline = calculate_text_height()
+    if position == "center":
+        swidth = (width - emoji_size) / 2 
+        sheight = (height - emoji_size) / 2 - 2*offset_oneline
+        sheight_with_offset = sheight - offset_oneline
+    else:
+        swidth = (width - emoji_size) / 2
+        sheight = height * 3 / 2 - 2*offset_oneline
+        sheight_with_offset = sheight - offset_oneline
 
     assert sheight > sheight_with_offset
 
@@ -42,9 +48,9 @@ def overlay_images_on_video(in_path, out_path, width, height, ass, emojis_list=N
             previous_video = f"[{idx}v]" if idx > 0 else "[0:v]"
             # Build overlay filter for each emoji image
             if offset_multiline == 1 :
-                filter_complex += f"{previous_video}[{idx + 1}:v]overlay={swidth}:{sheight_with_offset}:enable='between(t,{start_time},{end_time})'"
+                filter_complex += f"{previous_video}[{idx + 1}:v]overlay={int(swidth)}:{int(sheight_with_offset)}:enable='between(t,{start_time},{end_time})'"
             else:
-                filter_complex += f"{previous_video}[{idx + 1}:v]overlay={swidth}:{sheight}:enable='between(t,{start_time},{end_time})'"
+                filter_complex += f"{previous_video}[{idx + 1}:v]overlay={int(swidth)}:{int(sheight)}:enable='between(t,{start_time},{end_time})'"
             if idx < len(emojis_list) - 1:
                 filter_complex += f"[{idx + 1}v];"
             else:
@@ -56,7 +62,6 @@ def overlay_images_on_video(in_path, out_path, width, height, ass, emojis_list=N
             f"-filter_complex \"{filter_complex}\" -map [out] -map 0:a -c:a copy {out_path} -y"
         )
 
-        print(cmd)
     else:
         # If no emojis, use ASS subtitles directly with video overlay
         cmd = f"ffmpeg -i {in_path} -vf 'ass={ass}' -c:a copy -y {out_path}"
