@@ -57,8 +57,6 @@ def main():
         local_file_path = "temp/" + file_name
         s3_uploads.download_file(file_name, local_file_path)
 
-        print("File downloaded: " + local_file_path)
-
         # Process file
         path_in = local_file_path
         path_out = local_file_path.replace(".mp4", "_out.mp4")
@@ -71,18 +69,12 @@ def main():
         file_key = path_out
         s3_downloads.upload_file(file_key)
 
-        print("File uploaded: " + file_key)
-
         s3_uploads.remove_file(file_name)
-
-        print("File removed: " + file_name)
 
         # add minia with very low resolution    
         thumbnail_path = path_in.replace(".mp4", ".jpg")
         generate_thumbnail(path_in, thumbnail_path)
         s3_minia.upload_file(thumbnail_path)
-
-        print("Thumbnail uploaded: " + thumbnail_path.replace("temp/", ""))
 
         # Construction of the body for the frontend
         body = {

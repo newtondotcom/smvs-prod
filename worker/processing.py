@@ -220,8 +220,11 @@ def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence, position,
 
     # Overlay emojis on the input video if emoji flag is True
     if emoji:
+        print("array_for_emojis_processing")
         array_for_emojis_processing = compute_emojis()
+        print("array_for_emojis_processing")
         emojis_list = fetch_similar_emojis(array_for_emojis_processing, langage)
+        print("overlay_images_on_video")
         time_encoding = overlay_images_on_video(
             in_path=path_in,
             out_path=path_out,

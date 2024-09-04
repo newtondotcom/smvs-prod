@@ -4,7 +4,7 @@ from utils import *
 from translate import *
 from styles import *
 
-emojis_dir = "emojis/images/"
+emojis_dir = "../emojis/images/"
 
 def overlay_images_on_video(in_path, out_path, width, height, ass, emojis_list=None):
     """
@@ -55,6 +55,8 @@ def overlay_images_on_video(in_path, out_path, width, height, ass, emojis_list=N
             f"ffmpeg -i {in_path} {' '.join(['-i ' + image for image, _, _, _ in emojis_list])} "
             f"-filter_complex \"{filter_complex}\" -map [out] -map 0:a -c:a copy {out_path} -y"
         )
+
+        print(cmd)
     else:
         # If no emojis, use ASS subtitles directly with video overlay
         cmd = f"ffmpeg -i {in_path} -vf 'ass={ass}' -c:a copy -y {out_path}"
