@@ -7,6 +7,7 @@ from silent import *
 from emojis import *
 from gen import *
 
+font_size_pt = 18
 # http://www.looksoftware.com/help/v11/Content/Reference/Language_Reference/Constants/Color_constants.htm
 # rouge, jaune, vert
 
@@ -18,7 +19,7 @@ colors2 = ["\\1c&H0000FF&", "\\1c&H00FFFF&", "\\1c&H00FF00&"]
 tab = []       # Stores extracted words and timings
 new_tab = []   # Stores grouped and formatted subtitle segments
 words = []     # Placeholder for extracted transcriptions
-styles = gen_styles()  # List of predefined subtitle styles
+styles = gen_styles(font_size_pt)  # List of predefined subtitle styles
 
 def populate_tabs(words):
     """Extracts words and timings from transcriptions and populates 'tab'."""
@@ -183,6 +184,8 @@ def video_non_aligned(words, ass_path, emoji, path_in, path_out):
 
     # Get the dimensions (width and height) of the input video
     width, height = get_video_dimensions(video_path=path_in)
+    
+    set_font_size(width,height)
 
     # simply overlay the ASS script on the video
     time_encoding = overlay_images_on_video(
@@ -191,6 +194,7 @@ def video_non_aligned(words, ass_path, emoji, path_in, path_out):
         emojis_list=None,
         width=width,
         height=height,
+        font_size_pt = font_size_pt,
         ass=ass_path
     )
     return time_encoding
@@ -229,6 +233,7 @@ def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence, position,
             width=width,
             height=height,
             position=position,
+            font_size_pt = font_size_pt,
             ass=ass_path
         )
     else:
@@ -240,6 +245,7 @@ def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence, position,
             width=width,
             height=height,
             position=position,
+            font_size_pt = font_size_pt,
             ass=ass_path
         )
 
@@ -248,3 +254,11 @@ def video_aligned(words, ass_path, emoji, path_in, path_out, lsilence, position,
         rm_silent_parts(path_out, path_out)
         
     return time_encoding
+
+def set_font_size(width,height):
+    global font_size_pt
+    if (width < 380 or height < 720):
+        font_size_pt = 14
+    else :
+        font_size_pt = 18
+    print('Font size has been set to ',font_size_pt)
