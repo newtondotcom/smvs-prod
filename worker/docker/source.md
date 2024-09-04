@@ -1,0 +1,1 @@
+Taken from [here](https://github.com/LibreTranslate/LibreTranslate/tree/main)
