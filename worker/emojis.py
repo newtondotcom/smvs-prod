@@ -76,33 +76,42 @@ def overlay_images_on_video(in_path, out_path, width, height, ass, position, emo
     print(f"ffmpeg processing for video took: {time_encoding} seconds")
     return time_encoding
 
-def fetch_similar_emojis(array,langage):
+def fetch_similar_emojis(array, language):
     emojis_list = []
-    current_iteration_found_emoji = False
-    current_iteration_found_emoji_number = "0"
+    seen_emojis = {}
+
+    translated = []
+
     for word_group in array:
         current_iteration_found_emoji = False
         current_iteration_found_emoji_number = "0"
         sentence = word_group[2]
-        translated_sentence = translate(" ".join(sentence),langage).split(" ")
+        translated_sentence = translate(" ".join(sentence), language).split(" ")
+        translated.append(translate(" ".join(sentence), language))
+
         for word in translated_sentence:
             for line in flatten_array:
                 numero = line[0]
                 emoji_words = line[1]
                 for echo in emoji_words:
                     word_clean = remove_punctuation_and_whitespace(word)
-                    if (echo.lower() == word_clean):
+                    if echo.lower() == word_clean:
                         current_iteration_found_emoji = True
                         current_iteration_found_emoji_number = numero
-                        print("Found match for "+ echo + " corresding to emoji "+ numero)
-        if current_iteration_found_emoji : 
-            if len(sentence) > 3: 
-                to_append = [current_iteration_found_emoji_number,word_group[0],word_group[1],1]    
-            else :
-                to_append = [current_iteration_found_emoji_number,word_group[0],word_group[1],0]         
-            emojis_list.append(to_append)
-    print(str(len(emojis_list))+ " emojis have been found")
+                        print(f"Found match for {echo} corresponding to emoji {numero}")
+        
+        if current_iteration_found_emoji:
+            entry = [current_iteration_found_emoji_number, word_group[0], word_group[1], 1 if len(sentence) > 3 else 0]
+            if current_iteration_found_emoji_number not in seen_emojis:
+                seen_emojis[current_iteration_found_emoji_number] = entry
+
+    emojis_list = list(seen_emojis.values())
+    print(f"{len(emojis_list)} emojis have been found")
+
+    print(translated)
+
     return emojis_list
+
 
 array = [
     ["1","😀","grinning face",""],
@@ -200,8 +209,8 @@ array = [
     ["93","😡","pouting face",""],
     ["94","😠","angry face",""],
     ["95","🤬","face with symbols on mouth",""],
-    ["96","😈,smiling face with horns"," demon devil",""],
-    ["97","👿","angry face with horns",""],
+    ["96","😈,smiling face with horns","demon;devil"],
+    ["97","👿","angry face with horns","tyrant"],
     ["98","💀,skull"," skull",""],
     ["99","☠","skull and crossbones",""],
     ["100","💩","pile of poo",""],
@@ -567,7 +576,7 @@ array = [
     ["460","🧘‍♀️","woman in lotus position",""],
     ["461","🛀","person taking bath",""],
     ["462","🛌","person in bed",""],
-    ["463","🧑‍🤝‍🧑","people holding hands",""],
+    ["463","🧑‍🤝‍🧑","people holding hands","buddies;buddy"],
     ["464","👭","women holding hands",""],
     ["465","👫","woman and man holding hands",""],
     ["466","👬","men holding hands",""],
@@ -1279,7 +1288,7 @@ array = [
     ["1203","🪙","coin",""],
     ["1204","💴","yen banknote",""],
     ["1205","💵","dollar banknote",""],
-    ["1206","💶","euro banknote",""],
+    ["1206","💶","euro banknote","business"],
     ["1207","💷","pound banknote",""],
     ["1208","💸","money with wings",""],
     ["1209","💳","credit card",""],
