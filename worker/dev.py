@@ -5,6 +5,7 @@ from silent import *
 from s3 import *
 from emojis import *
 from processing import *
+import datetime
 
 videos_bucket_name = "videos"
 thumbnails_bucket_name = "thumbnails"
@@ -15,7 +16,7 @@ def main():
     lsilence = False
 
     #Download file from S3
-    local_file_path = "../inputs/test.mp4"
+    local_file_path = "../inputs/videoplayback.mp4"
 
     #Process file
     path_in = local_file_path
