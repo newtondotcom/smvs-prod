@@ -7,6 +7,8 @@ from silent import *
 from emojis import *
 from gen import *
 
+overlap_offset = 0.01
+
 font_size_pt = 18
 # http://www.looksoftware.com/help/v11/Content/Reference/Language_Reference/Constants/Color_constants.htm
 # rouge, jaune, vert
@@ -60,11 +62,7 @@ def analyse_tab_durations():
 def write_ass_file_aligned(file: TextIO, position):
     """Writes formatted subtitles to an ASS file."""
 
-    position_subtitle = ""
-    if position == "center":
-        position_subtitle = "\\an5"
-    else:
-        position_subtitle = "\\an2"
+    position_subtitle = "\\an5" if position == "center" else "\\an2"
 
     file.write("[Script Info]\n")
     file.write("ScriptType: v4.00\n")
@@ -87,19 +85,25 @@ def write_ass_file_aligned(file: TextIO, position):
         color = colors[i_color]
         i_color = (i_color + 1) % len(colors)
         
-        # Generate boilerplate style and text for each subtitle segment
-        boiler = "{\\k40\\fad(0,0)\\be1\\b\\bord2\\shad1\\1c&&HFFFFFF&\\3c&H000000&\\q1\\b700" + position_subtitle + color + "} "
+        boiler = "{\\k40\\fad(0,0)\\be1\\b\\bord2\\shad1\\1c&HFFFFFF&\\3c&H000000&\\q1\\b700" + position_subtitle + color + "} "
         localtext = boiler
         
         if len(s) == 4:
-            # Format specific segments within a group
-            boiler = "{\\fad(0,0)\\be1\\b\\bord2\\shad1\\1c&&HFFFFFF&\\3c&H000000&\\q1\\b700" + position_subtitle + color + "} "
+            boiler = "{\\fad(0,0)\\be1\\b\\bord2\\shad1\\1c&HFFFFFF&\\3c&H000000&\\q1\\b700" + position_subtitle + color + "} "
             localtext = boiler
             
             first_start = s[0][0]
             first_end = s[1][1]
             second_start = s[2][0]
             second_end = s[3][1]
+
+            # Ensure no overlap
+            if second_start < first_end:
+                second_start = first_end + overlap_offset
+            if s[2][0] < s[1][1]:
+                s[2] = (s[1][1] + overlap_offset, s[2][1], s[2][2])
+            if s[3][0] < s[2][1]:
+                s[3] = (s[2][1] + overlap_offset, s[3][1], s[3][2])
             
             diff = abs(round(float(first_end - first_start) * 100))
             duration = "{" + colors[i_color] + "\\k" + str(diff) + "}"
@@ -113,23 +117,24 @@ def write_ass_file_aligned(file: TextIO, position):
             duration2 = "{" + colors[i_color] + "\\k" + str(diff2) + "\\t(" + str(diff3) + "," + str(diff4) + ",\\fscx110)" + "\\t(" + str(diff3) + "," + str(diff4) + ",\\fscy110)}"
             localtext += duration2 + s[2][2].upper() + " " + s[3][2].upper()
         else:
-            # Format individual words within a segment
+            previous_end = None
             for segment in s:
                 start = segment[0]
                 end = segment[1]
                 word = segment[2]
+                if previous_end and start < previous_end:
+                    start = previous_end + overlap_offset
                 delta = end - start
                 duration = "{\\k" + str(abs(round(delta * 100))) + "}"
                 localtext += duration + word.upper() + " "
+                previous_end = end
         
         style = "s" + str(random.randint(0, len(styles) - 1))
             
-        # Split long lines into multiple lines for readability
-        words = localtext.split("{\q1")
+        words = localtext.split("{\\q1")
         if len(words) == 5:
-            localtext = "{\q1" + words[1] + "{\q1" + words[2] + "\\N{\q1" + words[3] + "{\q1" + words[4]
+            localtext = "{\\q1" + words[1] + "{\\q1" + words[2] + "\\N{\\q1" + words[3] + "{\\q1" + words[4]
 
-        # Write formatted subtitle event to the ASS file
         file.write(f"Dialogue: 0,{format_seconds_to_hhmmss(globalstart)},{format_seconds_to_hhmmss(globalend)},{style},,50,50,20,fx,{localtext}\n")
 
 def write_ass_file_non_aligned(contents,file: TextIO):
