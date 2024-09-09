@@ -14,6 +14,7 @@ from emojis import *
 from processing import *
 
 load_dotenv()
+webhook = os.environ.get("DISCORD_WEBHOOK")
 
 def main():
     print(' Connecting to server ...')
@@ -96,6 +97,8 @@ def main():
         # Advise server that file is ready
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
+        requests.post(webhook, json={"content": "Video successfully processed : " + str(key_db)})
+
         print(" Done")
 
     try:
@@ -103,7 +106,6 @@ def main():
         channel.basic_consume(queue='task_queue', on_message_callback=lambda ch, method, properties, body: callback(ch, method, properties, body, s3_minia))
         channel.start_consuming()
     except Exception as e:
-        webhook = os.environ.get("DISCORD_WEBHOOK")
         requests.post(webhook, json={"content": "Error in worker: " + str(e)})
         raise
 
