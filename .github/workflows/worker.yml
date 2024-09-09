@@ -22,4 +22,3 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:latest
           platforms: linux/amd64
-          context: ./worker
