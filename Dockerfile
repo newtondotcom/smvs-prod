@@ -21,7 +21,7 @@ RUN ./venv/bin/pip install Babel==2.12.1 \
 
 # Install additional requirements
 RUN ./venv/bin/pip install pika minio ffmpeg-python opencv-python moviepy argostranslate \
-  && ./venv/bin/pip install torchaudio>=2 faster-whisper==1.0.0 transformers pandas setuptools>=65 nltk whisperx \
+  && ./venv/bin/pip install torchaudio>=2 faster-whisper==1.0.3 transformers pandas setuptools>=65 nltk whisperx \
   && ./venv/bin/pip install python-dotenv \
   && ./venv/bin/pip cache purge
 
