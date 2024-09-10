@@ -28,7 +28,8 @@ RUN ./venv/bin/pip install pika minio ffmpeg-python opencv-python moviepy argost
 FROM python:3.11.9-slim-bullseye
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 COPY --from=builder /app /app
-WORKDIR /app/worker
+WORKDIR /app
+
 ENV OMP_NUM_THREADS=1
 
-ENTRYPOINT ["./venv/bin/python", "app.py" ]
+ENTRYPOINT ["./venv/bin/python", "worker/app.py" ]

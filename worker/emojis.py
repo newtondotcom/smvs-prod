@@ -4,7 +4,7 @@ from utils import *
 from translate import *
 from styles import *
 
-emojis_dir = "../emojis/images/"
+emojis_dir = "./emojis/images/"
 
 def overlay_images_on_video(in_path, out_path, width, height, ass, position,font_size_pt, emojis_list=None):
     """
