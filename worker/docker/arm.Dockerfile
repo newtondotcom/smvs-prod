@@ -1,4 +1,4 @@
-FROM arm64v8/python:3.11.9-slim-bullseye as builder
+FROM arm64v8/python:3.11.9-slim-bullseye AS builder
 
 WORKDIR /app
 
@@ -11,34 +11,27 @@ RUN apt-get update -qq \
 
 RUN python -mvenv venv && ./venv/bin/pip install --no-cache-dir --upgrade pip
 
-COPY . .
+COPY emojis/ ./emojis/
+COPY worker/ ./worker/
 
 # Install package from source code, compile translations
-RUN ./venv/bin/pip install Babel==2.12.1 && ./venv/bin/python scripts/compile_locales.py \
-  && ./venv/bin/pip install torch==2.0.1 --extra-index-url https://download.pytorch.org/whl/cpu \
-  && ./venv/bin/pip install "numpy<2" \
-  && ./venv/bin/pip install . \
+RUN ./venv/bin/pip install Babel==2.12.1 \
+  && ./venv/bin/pip install torch==2.0.0 torchvision==0.15.1 torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cpu
+  && ./venv/bin/pip install "numpy<2"
+
+# Install additional requirements
+RUN ./venv/bin/pip install pika minio ffmpeg-python opencv-python moviepy argostranslate \
+  && ./venv/bin/pip install faster-whisper==1.0.3 transformers pandas setuptools>=65 nltk whisperx \ 
+  #&& ./venv/bin/pip install git+https://github.com/m-bain/whisperx.git \
+  && ./venv/bin/pip install python-dotenv \
   && ./venv/bin/pip cache purge
 
 FROM arm64v8/python:3.11.9-slim-bullseye
-
-ARG with_models=false
-ARG models=""
-
-RUN addgroup --system --gid 1032 libretranslate && adduser --system --uid 1032 libretranslate && mkdir -p /home/libretranslate/.local && chown -R libretranslate:libretranslate /home/libretranslate/.local
-USER libretranslate
-
-COPY --from=builder --chown=1032:1032 /app /app
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+COPY --from=builder /app /app
 WORKDIR /app
 
-RUN if [ "$with_models" = "true" ]; then  \
-  # initialize the language models
-  if [ ! -z "$models" ]; then \
-  ./venv/bin/python scripts/install_models.py --load_only_lang_codes "$models";   \
-  else \
-  ./venv/bin/python scripts/install_models.py;  \
-  fi \
-  fi
+ENV OMP_NUM_THREADS=1
 
-EXPOSE 5000
+ENTRYPOINT ["./venv/bin/python", "worker/app.py" ]
 ENTRYPOINT [ "./venv/bin/libretranslate", "--host", "*" ]
