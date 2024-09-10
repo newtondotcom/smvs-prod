@@ -16,7 +16,7 @@ COPY worker/ ./worker/
 
 # Install package from source code, compile translations
 RUN ./venv/bin/pip install Babel==2.12.1 \
-  && ./venv/bin/pip install torch==2.0.0 torchvision==0.15.1 torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cpu
+  && ./venv/bin/pip install torch==2.0.0 torchvision==0.15.1 torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cpu \ 
   && ./venv/bin/pip install "numpy<2"
 
 # Install additional requirements
