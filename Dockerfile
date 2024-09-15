@@ -19,9 +19,11 @@ RUN ./venv/bin/pip install Babel==2.12.1 \
   && ./venv/bin/pip install torch==2.0.0 torchvision==0.15.1 torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cpu \ 
   && ./venv/bin/pip install "numpy<2"
 
+RUN ./venv/bin/pip install https://github.com/Hasan-Naseer/whisperX
+
 # Install additional requirements
 RUN ./venv/bin/pip install pika minio ffmpeg-python opencv-python moviepy argostranslate \
-  && ./venv/bin/pip install faster-whisper==1.0.3 transformers pandas setuptools>=65 nltk whisperx \ 
+  #&& ./venv/bin/pip install faster-whisper==1.0.3 transformers pandas setuptools>=65 nltk whisperx \ 
   #&& ./venv/bin/pip install git+https://github.com/m-bain/whisperx.git \
   && ./venv/bin/pip install python-dotenv \
   && ./venv/bin/pip cache purge
