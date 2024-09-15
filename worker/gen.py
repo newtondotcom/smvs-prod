@@ -8,12 +8,11 @@ env = os.environ.get("ENV")
 
 device = "cpu"  # "cuda" or "cpu"
 model = "large-v3"
+compute_type = "int8"  # change to "int8" if low on GPU mem (may reduce accuracy), before float16
 if env == "dev":
     batch_size = 8  # reduce if low on GPU mem, before 16
-    compute_type = "int8"  # change to "int8" if low on GPU mem (may reduce accuracy), before float16
 else:
     batch_size = 16
-    compute_type = "float16"
 
 # medium model is "medium", large model is "large-v2", ligh is "base"
 tic = time.perf_counter()
