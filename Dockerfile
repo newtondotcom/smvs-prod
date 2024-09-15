@@ -19,7 +19,7 @@ RUN ./venv/bin/pip install Babel==2.12.1 \
   && ./venv/bin/pip install torch==2.0.0 torchvision==0.15.1 torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cpu \ 
   && ./venv/bin/pip install "numpy<2"
 
-RUN ./venv/bin/pip install https://github.com/Hasan-Naseer/whisperX
+RUN ./venv/bin/pip install https://github.com/Hasan-Naseer/whisperX.git
 
 # Install additional requirements
 RUN ./venv/bin/pip install pika minio ffmpeg-python opencv-python moviepy argostranslate \
