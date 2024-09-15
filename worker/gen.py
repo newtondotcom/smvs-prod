@@ -1,13 +1,22 @@
 import whisperx
 import time
+import os
+from dotenv import load_dotenv
+load_dotenv()
+env = os.environ.get("ENV")
 
 device = "cpu"  # "cuda" or "cpu"
-batch_size = 8 # reduce if low on GPU mem, before 16
-compute_type = "int8" # change to "int8" if low on GPU mem (may reduce accuracy), before float16
+model = "large-v3"
+if env == "dev":
+    batch_size = 8 # reduce if low on GPU mem, before 16
+    compute_type = "int8" # change to "int8" if low on GPU mem (may reduce accuracy), before float16
+else:
+    batch_size = 16
+    compute_type = "float16"
 
 # medium model is "medium", large model is "large-v2", ligh is "base"
 tic = time.perf_counter()
-model = whisperx.load_model("large-v2", device, compute_type=compute_type)
+model = whisperx.load_model(model, device, compute_type=compute_type)
 toc = time.perf_counter()
 print("Faster-Whisper model took ", toc - tic, " seconds to load")
 
