@@ -1,12 +1,10 @@
 name: Build DEV
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  push-image-to-docker-hub:
+  armbuild:
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
@@ -23,4 +21,5 @@ jobs:
         with:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}:latest
-          platforms: linux/arm64/v8
+          platforms: linux/amd64
+          file : amd.Dockerfile
