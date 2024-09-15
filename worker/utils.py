@@ -3,9 +3,11 @@ import ffmpeg
 import cv2
 import shutil
 
+
 def extract_filename_without_extension(file_path):
     """Extracts the filename without extension from a given file path."""
     return os.path.splitext(os.path.basename(file_path))[0]
+
 
 def format_seconds_to_hhmmss(time_seconds):
     """Converts time in seconds to the 'hh:mm:ss.ms' format."""
@@ -13,7 +15,8 @@ def format_seconds_to_hhmmss(time_seconds):
     milliseconds = int((time_seconds - total_seconds) * 100)
     minutes = total_seconds // 60
     seconds = total_seconds % 60
-    return f"00:{minutes}:{seconds}.{milliseconds}" 
+    return f"00:{minutes}:{seconds}.{milliseconds}"
+
 
 def extract_audio_from_videos(video_paths):
     """
@@ -25,21 +28,25 @@ def extract_audio_from_videos(video_paths):
 
     if not os.path.exists(temp_directory):
         os.makedirs(temp_directory)
-        
+
     for video_path in video_paths:
-        print(f"Extracting audio from {extract_filename_without_extension(video_path)}...")
-        output_audio_path = os.path.join(temp_directory, f"{extract_filename_without_extension(video_path)}.wav")
-        
+        print(
+            f"Extracting audio from {extract_filename_without_extension(video_path)}..."
+        )
+        output_audio_path = os.path.join(
+            temp_directory, f"{extract_filename_without_extension(video_path)}.wav"
+        )
+
         # Use ffmpeg to extract audio
         ffmpeg.input(video_path).output(
-            output_audio_path,
-            acodec="pcm_s16le", ac=1, ar="16k"
+            output_audio_path, acodec="pcm_s16le", ac=1, ar="16k"
         ).run(quiet=True, overwrite_output=True)
 
         audio_paths[video_path] = output_audio_path
 
     return audio_paths
-    
+
+
 def clean_temporary_directory():
     """Cleans the contents of the temporary directory."""
     temp_directory = "temp/"
@@ -60,13 +67,14 @@ def clean_temporary_directory():
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
+
 def get_video_dimensions(video_path):
     """Gets the width and height dimensions of a video file."""
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         print("Error: Could not open video file.")
         return None
-    
+
     width = int(cap.get(3))  # 3 corresponds to CV_CAP_PROP_FRAME_WIDTH
     height = int(cap.get(4))  # 4 corresponds to CV_CAP_PROP_FRAME_HEIGHT
 
@@ -75,12 +83,15 @@ def get_video_dimensions(video_path):
     # Release the video capture object
     cap.release()
     return width, height
-    
 
-def group_words_based_on_threshold(tab, new_tab, proximity_threshold, index, average_time, average_length):
+
+def group_words_based_on_threshold(
+    tab, new_tab, proximity_threshold, index, average_time, average_length
+):
     """
     Groups words based on specified thresholds and criteria.
     """
+
     def is_word_below_threshold(word, next_word=None):
         """Checks if a word meets the threshold criteria."""
         if next_word is None:
@@ -109,7 +120,9 @@ def group_words_based_on_threshold(tab, new_tab, proximity_threshold, index, ave
         current_word = tab[index + i]
         previous_word = tab[index + i - 1]
 
-        if is_word_below_threshold(current_word) and is_word_below_threshold(previous_word, current_word):
+        if is_word_below_threshold(current_word) and is_word_below_threshold(
+            previous_word, current_word
+        ):
             group.append(current_word)
             retenue += 1
         elif "." in current_word[2]:
@@ -129,19 +142,21 @@ def generate_thumbnail(path_in, thumbnail_path):
     try:
         # Open the input video file and extract thumbnail
         probe = ffmpeg.probe(path_in)
-        video_stream = next((stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
+        video_stream = next(
+            (stream for stream in probe["streams"] if stream["codec_type"] == "video"),
+            None,
+        )
 
         if not video_stream:
             raise ValueError("Input file is not a valid video file.")
 
         # Use ffmpeg to extract thumbnail with specified dimensions and parameters
         (
-            ffmpeg
-            .input(path_in, ss=1)
+            ffmpeg.input(path_in, ss=1)
             .output(
                 thumbnail_path,
                 vframes=1,
-                vf='scale=200:100:force_original_aspect_ratio=decrease,pad=200:100:(ow-iw)/2:(oh-ih)/2,crop=200:100'
+                vf="scale=200:100:force_original_aspect_ratio=decrease,pad=200:100:(ow-iw)/2:(oh-ih)/2,crop=200:100",
             )
             .run(overwrite_output=True, quiet=True)  # Suppress output to console
         )
