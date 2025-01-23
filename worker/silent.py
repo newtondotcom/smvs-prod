@@ -1,5 +1,5 @@
 import math
-from moviepy.editor import VideoFileClip, concatenate_videoclips
+from moviepy import VideoFileClip, concatenate_videoclips
 
 
 # Iterate over audio to find the non-silent parts. Outputs a list of
